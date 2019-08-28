@@ -1,6 +1,6 @@
 # ApiFlows References
 
-[TOC](./README.md#table-of-content) | [NEXT GUIDE](./Tutorials.md)
+[TOC](./README.md#table-of-content) | [NEXT GUIDE](./Tutorial.md)
 
 
 * [ApiFlows CLI](#apiflows-cli)
@@ -19,4 +19,4 @@
 
 
 
-[TOC](./README.md#table-of-content) | [NEXT GUIDE](./Tutorials.md)
+[TOC](./README.md#table-of-content) | [NEXT GUIDE](./Tutorial.md)

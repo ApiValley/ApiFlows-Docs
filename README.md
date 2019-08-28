@@ -7,6 +7,6 @@
 ### [Setup](./Setup.md)
 ### [Tasks](./Tasks.md)
 ### [References](./References.md)
-### [Tutorials](./Tutorials.md)
+### [Tutorial](./Tutorial.md)
 
 [TOC](#table-of-content) | [NEXT GUIDE](./Concepts.md)
