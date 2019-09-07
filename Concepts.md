@@ -118,9 +118,9 @@ Two famillies of solutions can be used in Node-RED to trigger periodic tasks, ba
 
 <font color='red'>None of these solutions are adapted to horizontal scalability. The main reason being that timer events are local to each Node-RED instances. They cannot be shared accross the elastic group of Node-RED instances executing the program.</font>
 
-```
-Imagine, you want to increase the workload of such a Node-RED program. You have to increase the rate of timing events (by modifying delay ) and restart your Node-RED instance. What happens when your Node-RED instance workload is near consumming an entire CPU ? ApiFlows will scale horizontally and create a new Node-RED instance. Nevertheless, since timer events are local to each Node-RED instances with the same static period, the second Node-RED instances will near immediately consume an entire CPU, which will triggers the creation of a third Node-RED instances by ApiFlows, etc ...
-```
+
+>Imagine, you want to increase the workload of such a Node-RED program. You have to increase the rate of timing events (by modifying delay ) and restart your Node-RED instance. What happens when your Node-RED instance workload is near consumming an entire CPU ? ApiFlows will scale horizontally and create a new Node-RED instance. Nevertheless, since timer events are local to each Node-RED instances with the same static period, the second Node-RED instances will near immediately consume an entire CPU, which will triggers the creation of a third Node-RED instances by ApiFlows, etc ...
+
 
 
 ### <font color='green'>ApiFlows solution  to deal with horizontal scalability of timer event driven NodeRED programs.</font>
