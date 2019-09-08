@@ -21,9 +21,7 @@
 ## ApiFlows versus Node-RED
 
 [Node-RED](#what-is-nodered) is a great tool but has one limitation. It does neither scale vertically nor horizontally. In other words, it can not consume more than the power of one CPU, on one machine.
-It prevents Node-RED from being used in CPU intensive situation. As an example, it cannot be used to develop an IOT supervision application, if the number of Object sending events to the application is ever growing. 
-
-
+It prevents Node-RED from being used in CPU intensive situation or in situation where CPU consumption can be extremly variable . As an example, it cannot be used to develop an IOT supervision application, if the number of Object sending events to he application is ever growing. 
 
 ApiFlows is a SaaS created by ApiValley to make Node-RED horizontally scallable. What does that mean from a user perspective :
 * He uses Node-RED visual editor standard functionality  to create a program.
@@ -47,7 +45,7 @@ A **flow** is a facade resource used by ApiFlows to create and controll all phys
 ![what is a flow](images/whatIsAFlow.png)
 
 
-> So as to avoid any confusion, a clear distinction must be made between the ApiFlows flow facade, and a Node-RED flow which is the formatting of a Node-RED program. In the following, flow will allways design an ApiFlows flow facade. Node-RED flow will instead be replaced by Node-RED program
+> So as to avoid any confusion, a clear distinction must be made between the ApiFlows flow facade, and a Node-RED flow which is the formatting of a Node-RED program. In the following, flow will allways design an ApiFlows flow facade while Node-RED program  will be used instead of Node-RED flow.
 
 
 [Back to top](#apiflows-concepts)
@@ -137,13 +135,15 @@ As a sender, **wire-out** node must define a target address, made of a **target_
 
 Not only can an **injector message** be sent from a **wire-out**  but it can also be injected in **ApiFlows messaging service** network, by the way of **external injection**. (see context sharing )
 
+![Messaging service](images/ApiFlowsMessagingService.png)
+
 The address of a **wire-in** contained in a Node-RED program, is shared by all the Node-RED instances belonging to the elastic group in charge of executing  the same program, because they belongs to the same [flow](#what-is-a-apiflows-flow), and have the same **pin_name**
 
 Each time injection messages are sent to this address by a **wire-out** or by **external injection** , **ApiFlows messaging service** garanty the following :
 * messages are received by at least one and only one Node-RED instance of the elastic group executing the program
 * messages are equally balanced accross Node-RED instances executing the program
 
-![Messaging service](images/ApiFlowsMessagingService.png)
+
 
 Let's explain now, why **ApiFlows messaging service** brings horizontal scalability for timer event driven Node-RED program.
 
@@ -160,18 +160,29 @@ Imagine you have only one Node-RED instance, executing the program.
 
 ### <span style="color:green">To decrease workload</span>
  ApiFlows brings a way to eject **injector message** from the ApiFlows messaging service network.
-Each **injector message** has a unique key, which corresponds to a **shared context** ( see Context Sharing). When a wire-in node receives an **injector message** it reads the **shared context** corresponding to the key. A shared context has a property named **state**. If **state** is **STOPPED**, wire-in node does not transmit injector message to the downstream node in the program. The immediate effect is to exclude the injector message from the circuit and as a consequence decrease the global workload.
+Each **injector message** has a unique key, which corresponds to a **shared context** ( see Context Sharing). When a wire-in node receives an **injector message** it reads the **shared context** corresponding to the key. A shared context has a property named **state**. If **state** is **STOPPED**, wire-in node does not transmit injector message to the downstream node in the program. The immediate effect is to eliminate the injector message from the circuit and as a consequence decrease the global workload. 
+
+If the global workload becomes sustainable by a unique Node-RED instance, ApiFlows stop gracefully one Node-RED instance. The stopped Node-RED instance, is first denied the possibility of receiving injector messages. A gracefull period is then let to the stopped Node-RED instance (before being killed), to transmit all previous received message through its wire-out nodes. At the end of the gracefull period, none of the looping injector message is lost. The workload remain the same, but is handled by a unique Node-RED instance.
 
 [Back to top](#apiflows-concepts)
 
 
-
-
-
-
-
-
 ## Context sharing
+
+As explained in preceding chapters, ApiFlows is capable of sharing equally the workload accross an elastic group of Node-RED instances executing the same program. To do that, it balances ingress messages and injector messages accross the Node-RED instances. Nothing allows to know in advance, which Node-RED instance, will handle which message. It can be a problem, if the message is associated with a context.
+
+It's the reason why ApiFlows comes with a shared context service.
+Shared context service is a way to centralize the management of contexts. Contexts are no more stored locally in each Node-RED instance. They are shared. Each ApiFlows user has his own dedicated  Shared Context service, shared by all the Node-RED instances of all [flows](#what-is-a-apiflows-flow), he created.
+
+A context is addressed by a unique key. It contains a json value, made of two properties :
+* state : string value. Only "STOPPED" value is meaningfull for wire-in node ( see bellow)
+* context : opaque json structure which has no direct meaning for ApiFlows
+
+There are three ways to consume Shared Context service :
+
+* APiFlows API and CLI enables all CRUD operations .It's the only way to create shared contexts.
+* wire-in ApiFlows node-RED node : As explained in preceding chapter, an **injector message** has a unique key, which must corresponds to a **shared context** . When a wire-in node receives an **injector message**, it reads the **shared context** corresponding to the key. If the shared context does not exist or is in STOPPED state, wire-in node does not transmit the message to its downstream node. , Else, it adds two parameters to the message , zm_context and zm_state respectively being the context, and  state parameter  of the context object. It then transmit the augmented message to it downstream node.   
+* Context ApiFlows node-RED node : ApiFlows brings an additional Node-RED node , named **Context** to read, and modify a shared context, from a Node-RED program.
 
 [Back to top](#apiflows-concepts)
 
