@@ -46,9 +46,9 @@ A **flow** is a facade resource used by ApiFlows to create and controll all phys
 
 ![what is a flow](images/whatIsAFlow.png)
 
-```
-So as to avoid any confusion, a clear distinction must be made between the ApiFlows flow facade, and a Node-RED flow which is the formatting of a Node-RED program.
-```
+
+> So as to avoid any confusion, a clear distinction must be made between the ApiFlows flow facade, and a Node-RED flow which is the formatting of a Node-RED program. In the following, flow will allways design an ApiFlows flow facade. Node-RED flow will instead be replaced by Node-RED program
+
 
 [Back to top](#apiflows-concepts)
 
@@ -81,7 +81,7 @@ Input nodes are in charge of receiving event messages comming from the internet 
 
 ApiFlows makes Node-RED horizontally scalable. It starts, or stops Node-Red instances, to adapt to increasing or deacreasing workload.
 
-In most situation, workload is due to ingress message reception rate. Nevertheless, Having more or less instances of Node-RED, without automatically rebalancing the ingress traffic does not solve the  problem.
+If workload is due to ingress message reception rate. Having more or less instances of Node-RED, without automatically rebalancing the ingress traffic does not solve the  problem.
 
 ### <font color='green'>ApiFlows solutions to equally balance ingress traffic accross an elastic group of Node-RED instances</font>
 
@@ -102,9 +102,9 @@ It depends on the communication paradigm used by input nodes :
 ### <font color='green'>Introduction</font>
 In previous chapter, we covered the use cases in which Node-RED workload is due to ingress traffic. It's the case usually when Node-RED acts as a service.
 
-Nevertheless, Node-RED workload isn't allways due to ingress traffic. Node-RED can also be used as an outgoing traffic generator. It's the case for instance when Node-RED is used to simulate a fleet of sensors to load test an IOT supervision platform ( see tutorial).In these situations, Node-RED is programmed to periodically execute tasks which are not triggered by ingress traffic, but by timer events.
+Nevertheless, Node-RED workload isn't allways due to ingress traffic. Node-RED can also be used as an outgoing traffic generator. It's the case when Node-RED is used to simulate a fleet of sensors to test the scalability of an IOT supervision platform ( see tutorial).In these situations, Node-RED is programmed to periodically execute tasks which are not triggered by ingress traffic, but by timer events.
 
-Two famillies of solutions can be used in Node-RED to trigger periodic tasks, based on timer events.
+Two famillies of solutions can be used in Node-RED programs  to trigger periodic tasks, based on timer events.
 
 * The first type of solution is to use a [basic inject node](https://nodered.org/docs/user-guide/nodes#inject), and configure it to peridically trigger events.
 
@@ -119,33 +119,48 @@ Two famillies of solutions can be used in Node-RED to trigger periodic tasks, ba
 <font color='red'>None of these solutions are adapted to horizontal scalability. The main reason being that timer events are local to each Node-RED instances. They cannot be shared accross the elastic group of Node-RED instances executing the program.</font>
 
 
->Imagine, you want to increase the workload of such a Node-RED program. You have to increase the rate of timing events (by modifying delay ) and restart your Node-RED instance. What happens when your Node-RED instance workload is near consumming an entire CPU ? ApiFlows will scale horizontally and create a new Node-RED instance. Nevertheless, since timer events are local to each Node-RED instances with the same static period, the second Node-RED instances will near immediately consume an entire CPU, which will triggers the creation of a third Node-RED instances by ApiFlows, etc ...
+>Imagine, you want to increase the workload of such a Node-RED program. You have to increase the rate of timing events (by decreasing delay ) and restart your Node-RED instance. What happens when your Node-RED instance workload is near consumming an entire CPU ? ApiFlows will scale horizontally and create a new Node-RED instance. Nevertheless, since timer events are local to each Node-RED instances with the same static delay period, the second Node-RED instance will near immediately consume an entire CPU, which will triggers the creation of a third Node-RED instance by ApiFlows, etc ... Instead of sharing workload, it is multiplied by the number of created Node-RED instances.
+
+
 
 
 
 ### <font color='green'>ApiFlows solution  to deal with horizontal scalability of timer event driven NodeRED programs.</font>
 
-ApiFlows brings two additional Node-RED nodes, named **wire-in** and **wire-out**. They are used to exchange what we call **injector messages** between Node-RED instances, through a network named **ApiFlows messaging service** . 
-Each ApiFlows user, has his own private ApiFlows messaging service network, shared by all the Node-RED instances of all [flow](#what-is-a-apiflows-flow), he created.  
+ApiFlows brings two additional Node-RED nodes, named **wire-in** and **wire-out**. They are used to respectively receive and send messages called **injector messages**, between Node-RED instances, through a private network named **ApiFlows messaging service** . 
 
-As an injector message receiver, **wire-in** node has an address composed by the name of the [flow](#what-is-a-apiflows-flow) in which it resides, and an additional property named **pin_name**.
+Each ApiFlows user, has his own dedicated **ApiFlows messaging service** private network, shared by all the Node-RED instances of all [flows](#what-is-a-apiflows-flow), he created.  
 
-As an injector message sender, **wire-out** node must define a target address, made of a **target_flow_name** and a **target_pin_name**.
+As a receiver, **wire-in** node has an address composed by the name of the [flow](#what-is-a-apiflows-flow) in which it resides, and an additional property named **pin_name**. When receiving an injector message, wire-in role is to transmit the message to the downstream node in the Node-RED program.
 
-When a Node-RED program  contains a **wire-in** configured with a **pin_name** property, the Node-RED instances belonging to the elastic group in charge of executing  the same program, share a common address in ApiFlows messaging service network.
+As a sender, **wire-out** node must define a target address, made of a **target_flow_name** and a **target_pin_name**.
 
-Each time injection messages are sent to this address by a wire-out or by external injection , ApiFlows messaging service garanty the following :
+Not only can an **injector message** be sent from a **wire-out**  but it can also be injected in **ApiFlows messaging service** network, by the way of **external injection**. (see context sharing )
+
+The address of a **wire-in** contained in a Node-RED program, is shared by all the Node-RED instances belonging to the elastic group in charge of executing  the same program, because they belongs to the same [flow](#what-is-a-apiflows-flow), and have the same **pin_name**
+
+Each time injection messages are sent to this address by a **wire-out** or by **external injection** , **ApiFlows messaging service** garanty the following :
 * messages are received by at least one and only one Node-RED instance of the elastic group executing the program
 * messages are equally balanced accross Node-RED instances executing the program
 
 ![Messaging service](images/ApiFlowsMessagingService.png)
 
-Let's explain now, why ApiFlows messaging service brings horizontal scalability for timer event driven Node-RED program.
+Let's explain now, why **ApiFlows messaging service** brings horizontal scalability for timer event driven Node-RED program.
 
-To increase workload, no more need to decrease the delay period. It can be fixed to 1 second . Workload can be controlled instead by external injection. 
-Imagine you have only one Node-RED instance, executing the program. You first inject one "injector message" with external injection. The workload will be one task per second ( because the delay is 1 second and the unique injector message is looping continuously from wire-out to wire-in). If you inject a second "injector message" , the workload will be 2 tasks per second.
-After injection of several hundred "injector messages", workload will no more be sustainable by one Node-RED instance. ApiFlows will automativally create a new Node-RED instance. Thanks to ApiFlows messaging service, looping injector messages will be immediately balanced between the two Node-RED instance.
-Each Node-RED instance will support half the workload.
+### <font color='green'>To increase workload</font>
+
+ no more need to decrease the static  delay period. It can be set to a fixed value like  1 second . Workload can be controlled instead by external injection. 
+
+Imagine you have only one Node-RED instance, executing the program.
+
+ * You first inject one **injector message** with external injection. The workload becomes "one task per second" ( because the delay is 1 second and the unique injector message is looping continuously from wire-out to wire-in).
+ * If you inject a second **injector message** , the workload becomes "2 tasks per second".
+* After injection of several hundred **injector messages**, workload is no more sustainable by one Node-RED instance. ApiFlows automativally creates a new Node-RED instance.
+* Thanks to ApiFlows messaging service, looping injector messages are immediately balanced between the two Node-RED instances. Each Node-RED instance supports half the workload.
+
+### <span style="color:green">To decrease workload</span>
+ ApiFlows brings a way to eject **injector message** from the ApiFlows messaging service network.
+Each **injector message** has a unique key, which corresponds to a **shared context** ( see Context Sharing). When a wire-in node receives an **injector message** it reads the **shared context** corresponding to the key. A shared context has a property named **state**. If **state** is **STOPPED**, wire-in node does not transmit injector message to the downstream node in the program. The immediate effect is to exclude the injector message from the circuit and as a consequence decrease the global workload.
 
 [Back to top](#apiflows-concepts)
 
