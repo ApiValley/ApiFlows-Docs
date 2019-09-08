@@ -178,6 +178,9 @@ A context is addressed by a unique key. It contains a json value, made of two pr
 * state : string value. Only "STOPPED" value is meaningfull for wire-in node ( see bellow)
 * context : opaque json structure which has no direct meaning for ApiFlows
 
+
+![Messaging service](images/SharedContextService.png)
+
 There are three ways to consume Shared Context service :
 
 * APiFlows API and CLI enables all CRUD operations .It's the only way to create shared contexts.
