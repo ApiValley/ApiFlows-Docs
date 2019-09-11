@@ -25,7 +25,8 @@ It prevents Node-RED from being used in CPU intensive situation or in situation 
 
 ApiFlows is a SaaS created by ApiValley to make Node-RED horizontally scallable. What does that mean from a user perspective :
 * He uses Node-RED visual editor standard functionality  to create a program.
-* He let ApiFlows execute in parallel a set of Node-RED engine, which collaborate together to handle tasks.
+* He let ApiFlows execute in parallel a set of Node-RED engines which collaborate together by sharing contexts and data processing.
+* He makes use of a grafana tenant to aggegate logs and metrics
 ApiFlows adapts automatically the number of execution engines, depending on the workload. As the number of execution engines scale up and down, requested hardware infrastructure is automatically and transparently managed by ApiFlows.
 * He pays for what he uses when he uses it.
 
@@ -39,7 +40,7 @@ ApiFlows adapts automatically the number of execution engines, depending on the 
 
 The execution of an horizontally scalable Node-RED program, needs dynamically created infrastructure elements like virtual machines, containers running NodeRED instances, storage, loadBalancers, private network etc ...
 To simplify user experience, ApiFlows comes with a resource object called **flow**, which can be created, deleted  and controlled with a REST API and a CLI ( windows, linux, macos). 
-
+ApiFlows flow extends the NodeRed flow definition to manage all the different facets related to its execution: infrastructure resources, parallel NR flow instances
 A **flow** is a facade resource used by ApiFlows to create and controll all physical and virtual items, involved in the creation and execution of one horizontally scalable Node-Red program.
 
 ![what is a flow](images/whatIsAFlow.png)
@@ -62,7 +63,7 @@ At creation time, a [flow](#what-is-a-apiflows-flow) is allways in **studio mode
 *  The facade object creates one single Node-Red instance in the cloud. User can access its visual editor to edit the program, install and use new programming block ( nodes ),  execute and test it.
 
 As soon as user is satisfied with the program and want to gain horizontal scalability, it can switch the [flow](#what-is-a-apiflows-flow) mode to **production** :
- * The facade object automatically stops  the former single Node-RED instance. It then creates a set of new Node-RED instances without editor. Depending on other [flow](#what-is-a-apiflows-flow) properties, like **autoscaling** or **nb_instances**, the number of Node-RED instances, can be fixed or can vary automatically depending on the workload. So as to handle the monitoring capabilities played by visual editor in **studio** mode, ApiFlows offers a grafana tenant which can be customized by user to monitor his flow. 
+ * The facade object automatically stops  the former single Node-RED instance. It then creates a set of new Node-RED instances without editor. Depending on other [flow](#what-is-a-apiflows-flow) properties, like **autoscaling** or **nb_instances**, the number of Node-RED instances, can be fixed or can vary automatically depending on the workload. 
 
 [Back to top](#apiflows-concepts)
 
@@ -70,7 +71,7 @@ As soon as user is satisfied with the program and want to gain horizontal scalab
 
 ### <font color='green'>Introduction</font>
 A Node-Red program is composed of input nodes, processing nodes, and output nodes .
-Input nodes are in charge of receiving event messages comming from the internet of things.Two paradigms of communication can be used to receive messages :
+Most input nodes are in charge of receiving event messages comming from the internet of things.Two paradigms of communication can be used to receive messages :
 
 * **pull based reception :** Input node creates an outgoing connection to an external broker really in charge of receiving and buffering messages. Input node  pull messages from the broker on regular basis. Kafka, or mqtt are good examples of pull based reception.
 
@@ -79,7 +80,7 @@ Input nodes are in charge of receiving event messages comming from the internet 
 
 ApiFlows makes Node-RED horizontally scalable. It starts, or stops Node-Red instances, to adapt to increasing or deacreasing workload.
 
-If workload is due to ingress message reception rate. Having more or less instances of Node-RED, without automatically rebalancing the ingress traffic does not solve the  problem.
+If workload is due to ingress message reception rate, having more or less instances of Node-RED, without automatically rebalancing the ingress traffic does not solve the  problem.
 
 ### <font color='green'>ApiFlows solutions to equally balance ingress traffic accross an elastic group of Node-RED instances</font>
 
@@ -190,6 +191,8 @@ There are three ways to consume Shared Context service :
 [Back to top](#apiflows-concepts)
 
 ## Observability and Dashboarding
+
+
 
 [Back to top](#apiflows-concepts)
 
