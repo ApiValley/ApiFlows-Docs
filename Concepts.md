@@ -49,7 +49,7 @@ ApiFlows flow extends the NodeRed flow definition to manage all the different fa
 
 [Back to top](#apiflows-concepts)
 
-## Studio versus Production mode
+## sdk versus Production mode
 
 
 A [flow](#what-is-a-apiflows-flow) has a property named **mode**, which can evolve during its lifecycle.
@@ -57,7 +57,7 @@ A [flow](#what-is-a-apiflows-flow) has a property named **mode**, which can evol
 *  **studio**
 *  **production** 
 
-At creation time, a [flow](#what-is-a-apiflows-flow) is allways in **studio mode** :
+At creation time, a [flow](#what-is-a-apiflows-flow) is allways in **sdk mode** :
 *  The facade object creates one single Node-Red instance in the cloud. User can access its visual editor to edit the program, install and use new programming block ( nodes ),  execute and test it.
 
 As soon as user is satisfied with the program and want to gain horizontal scalability, it can switch the [flow](#what-is-a-apiflows-flow) mode to **production** :
