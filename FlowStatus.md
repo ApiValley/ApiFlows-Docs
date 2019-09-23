@@ -10,4 +10,6 @@ Name | Type | Description | Notes
 **maxReplicas** | **Number** |  | [optional] 
 **autoscale** | **Boolean** |  | [optional] 
 
+[Back to Cli Reference](ReferenceCli.md) | [Back to Rest API reference](ReferenceRestApi.md)
+
 

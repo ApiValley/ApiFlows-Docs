@@ -8,4 +8,6 @@ Name | Type | Description | Notes
 **state** | **String** |  | 
 **data** | **Object** |  | 
 
+[Back to Cli Reference](ReferenceCli.md) | [Back to Rest API reference](ReferenceRestApi.md)
+
 
