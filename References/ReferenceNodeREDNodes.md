@@ -1,10 +1,17 @@
 # ApiFlows NodeRED nodes
 
-[Back to References](References.md) | [TOC](README.md)
+[Back to References](../References.md) | [TOC](../README.md)
 
-## **ApiFlows context node**
+## **ApiFlows context node** 
+
+![ApiFlows Context node](../images/ContextNode.png)
+
+```
 This node is used to read, update, or delete a shared context from a NodeRED flow.
-It appears in palette in category **ApiFlows**  under the name **ApiFlows context**.
+It appears in palette in category ApiFlows  under the name ApiFlows context.
+```
+
+
 
 One input message :
 * must contain **af_contextid** field for any operation
@@ -32,6 +39,13 @@ Four operations :
 
 ## **ApiFlows wire-in node**
 
+![ApiFlows Context node](../images/WireInNode.png)
+
+```
+This node is used to receive an injector message sent on ApiFlows messaging network. 
+It appears in palette in category ApiFlows  under the name ApiFlows wire-in.
+```
+
 one input  :
 
 * must contain **af_contextid** field
@@ -52,11 +66,35 @@ Two parameters :
 
 ## **ApiFlows wire-out node**
 
-one input :
+![ApiFlows wire out node](../images/WireOutNode.png)
+
+```
+This node is used to send an injector message on the ApiFlows messaging service network.
+It appears in palette in category **ApiFlows**  under the name **ApiFlows wire-out**.
+```
+
+one input  :
+
+* must contain **af_contextid** field
+
+Two parameters :
+
+* **name** : label of node as it appears in the flow
+* **target_pin_name** : address of the wire-in input node in ApiFlows messaging network.
+* **target_flow_name** :
 
 ## **ApiFlows metric node**
 
+![ApiFlows metric node](../images/MetricNode.png)
+
+```
+This node is used to feed metrics. Metrics are collected, aggregated and available in a grafana tenant at the following address : https://grafana.apivalley.org
+The node appears in palette in category ApiFlows  under the name ApiFlows wire-in.
+```
+
+This 
 
 
 
-[Back to References](References.md) | [TOC](README.md)
+
+[Back to References](../References.md) | [TOC](../README.md)

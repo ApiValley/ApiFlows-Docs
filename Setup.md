@@ -14,7 +14,6 @@ To create a user , you need a web browser and an email-address
 * navigate to [apivalley.org](https://apivalley.org)
 * click on **Try ApiFlows** on top right
 * click on **Create an account**
-* click on **Sign up now** on bottom right
 * fill in your **Email Address** then click on **Send verification code**
 
 At this stage, you must receive an email with the following object : apiflows account email verification code.

@@ -5,7 +5,7 @@
 * [What is Node-RED](#what-is-node-red)
 * [ApiFlows versus Node-RED](#apiflows-versus-node-red)
 * [What is a flow](#what-is-a-flow)
-* [studio versus production mode](#studio-versus-production-mode)
+* [sdk versus multi mode](#sdk-versus-multi-mode)
 * [Ingress traffic management](#ingress-traffic-management)
 * [Injection traffic management](#injection-traffic-management)
 * [Context sharing](#context-sharing)
@@ -49,19 +49,19 @@ ApiFlows flow extends the NodeRed flow definition to manage all the different fa
 
 [Back to top](#apiflows-concepts)
 
-## sdk versus Production mode
+## sdk versus multi mode
 
 
 A [flow](#what-is-a-apiflows-flow) has a property named **mode**, which can evolve during its lifecycle.
 [flow](#what-is-a-apiflows-flow) **mode** can be :
-*  **studio**
-*  **production** 
+*  **sdk**
+*  **multi** 
 
-At creation time, a [flow](#what-is-a-apiflows-flow) is allways in **sdk mode** :
+At creation time, a [flow](#what-is-a-apiflows-flow) is always in **sdk mode** :
 *  The facade object creates one single Node-Red instance in the cloud. User can access its visual editor to edit the program, install and use new programming block ( nodes ),  execute and test it.
 
-As soon as user is satisfied with the program and want to gain horizontal scalability, it can switch the [flow](#what-is-a-apiflows-flow) mode to **production** :
- * The facade object automatically stops  the former single Node-RED instance. It then creates a set of new Node-RED instances without editor. Depending on other [flow](#what-is-a-apiflows-flow) properties, like **autoscaling** or **nb_instances**, the number of Node-RED instances, can be fixed or can vary automatically depending on the workload. 
+As soon as user is satisfied with the program and wants to gain horizontal scalability, it can switch the [flow](#what-is-a-apiflows-flow) mode to **multi** :
+ * The facade object automatically stops  the former single Node-RED instance. It then creates a set of new Node-RED instances without editor. Depending on other [flow](#what-is-a-apiflows-flow) properties, like **autoscale**,**replicas**,**minReplicas**, **maxReplicas**, the number of Node-RED instances, can be controlled or can vary automatically depending on the workload. 
 
 [Back to top](#apiflows-concepts)
 
@@ -151,7 +151,7 @@ Let's explain now, why **ApiFlows messaging service** brings horizontal scalabil
 
  no more need to decrease the static  delay period.  Workload can be controlled instead by external injection. 
 
-Assume your flow was just started in production modeand only one Node-RED instance, is executing the program.
+Assume your flow was just started in multi mode and only one Node-RED instance, is executing the program.
 
  * You first inject one **injector message** with external injection. The workload becomes "one task per second" ( because the delay is 1 second and the unique injector message is looping continuously from wire-out to wire-in).
  * If you inject a second **injector message** , the workload becomes "2 tasks per second".
