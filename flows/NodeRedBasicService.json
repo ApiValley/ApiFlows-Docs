@@ -1,1 +1,69 @@
-[{"id":"2d726eba.3b4f2a","type":"http response","z":"fc2bac29.50e3b","name":"","statusCode":"200","headers":{},"x":900,"y":60,"wires":[]},{"id":"e48cc9ee.cc4878","type":"function","z":"fc2bac29.50e3b","name":"Compute function","func":"msg.payload.sin = Math.sin(msg.payload.q);\nreturn msg;","outputs":1,"noerr":0,"x":690,"y":60,"wires":[["2d726eba.3b4f2a"]]},{"id":"425e3e05.464f28","type":"http in","z":"fc2bac29.50e3b","name":"","url":"/sinus","method":"get","upload":false,"swaggerDoc":"","x":460,"y":60,"wires":[["e48cc9ee.cc4878"]]}]
+[
+    {
+        "id": "ec3d1ca9.0ece6",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "38d17773.62fea",
+        "type": "http response",
+        "z": "ec3d1ca9.0ece6",
+        "name": "",
+        "statusCode": "200",
+        "headers": {},
+        "x": 640,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "7f65d889.73332",
+        "type": "function",
+        "z": "ec3d1ca9.0ece6",
+        "name": "Compute function",
+        "func": "msg.payload.sin = Math.sin(msg.payload.q);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 430,
+        "y": 140,
+        "wires": [
+            [
+                "38d17773.62fea",
+                "48f94f0f.3d15b8"
+            ]
+        ]
+    },
+    {
+        "id": "8e42e640.cfe888",
+        "type": "http in",
+        "z": "ec3d1ca9.0ece6",
+        "name": "",
+        "url": "/sinus",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 200,
+        "y": 140,
+        "wires": [
+            [
+                "7f65d889.73332"
+            ]
+        ]
+    },
+    {
+        "id": "48f94f0f.3d15b8",
+        "type": "debug",
+        "z": "ec3d1ca9.0ece6",
+        "name": "Sinus value",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 650,
+        "y": 200,
+        "wires": []
+    }
+]

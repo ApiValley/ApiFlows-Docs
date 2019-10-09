@@ -1,0 +1,174 @@
+[
+    {
+        "id": "a975d17d.898748",
+        "type": "tab",
+        "label": "Http Simu load tester step 1",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "a627da99.eb2c5",
+        "type": "inject",
+        "z": "a975d17d.898748",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 100,
+        "y": 120,
+        "wires": [
+            [
+                "2ff7696d.7ec2ee"
+            ]
+        ]
+    },
+    {
+        "id": "1f87b5cb.cffaaa",
+        "type": "http request",
+        "z": "a975d17d.898748",
+        "name": "Send request to /sinus",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": false,
+        "url": "http://sinus.mvcbasu9.apivalley.org/sinus?q={{{query}}}&format=json",
+        "tls": "",
+        "proxy": "",
+        "authType": "",
+        "x": 580,
+        "y": 360,
+        "wires": [
+            [
+                "bd11783.2094208",
+                "55800459.7025a4"
+            ]
+        ]
+    },
+    {
+        "id": "6ad60b16.182ca4",
+        "type": "function",
+        "z": "a975d17d.898748",
+        "name": "Prepare query",
+        "func": "msg.query = msg.af_context.temp;\nmsg.af_context.temp = msg.af_context.temp + 1;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 360,
+        "y": 360,
+        "wires": [
+            [
+                "1f87b5cb.cffaaa"
+            ]
+        ]
+    },
+    {
+        "id": "2d99e552.d42562",
+        "type": "apiflows wire-in",
+        "z": "a975d17d.898748",
+        "name": "wire-in",
+        "pin_name": "INIT",
+        "simulation_id": "",
+        "x": 90,
+        "y": 200,
+        "wires": [
+            [
+                "716a91f.73b687"
+            ],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "716a91f.73b687",
+        "type": "function",
+        "z": "a975d17d.898748",
+        "name": "Initial event",
+        "func": "msg.af_context.temp = 0;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 450,
+        "y": 200,
+        "wires": [
+            [
+                "a656bca2.4f08b8"
+            ]
+        ]
+    },
+    {
+        "id": "bd11783.2094208",
+        "type": "function",
+        "z": "a975d17d.898748",
+        "name": "Validate response",
+        "func": "msg.result = JSON.parse(msg.payload);\nmsg.af_contextid\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 810,
+        "y": 360,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "2ff7696d.7ec2ee",
+        "type": "function",
+        "z": "a975d17d.898748",
+        "name": "",
+        "func": "msg.af_context = {};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 250,
+        "y": 120,
+        "wires": [
+            [
+                "716a91f.73b687"
+            ]
+        ]
+    },
+    {
+        "id": "55800459.7025a4",
+        "type": "debug",
+        "z": "a975d17d.898748",
+        "name": "Sinus",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 770,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "a656bca2.4f08b8",
+        "type": "link out",
+        "z": "a975d17d.898748",
+        "name": "Start query",
+        "links": [
+            "6b1a2d79.f05e2c"
+        ],
+        "x": 630,
+        "y": 200,
+        "wires": [],
+        "l": true
+    },
+    {
+        "id": "6b1a2d79.f05e2c",
+        "type": "link in",
+        "z": "a975d17d.898748",
+        "name": "Start query",
+        "links": [
+            "a656bca2.4f08b8"
+        ],
+        "x": 180,
+        "y": 360,
+        "wires": [
+            [
+                "6ad60b16.182ca4"
+            ]
+        ],
+        "l": true
+    }
+]
