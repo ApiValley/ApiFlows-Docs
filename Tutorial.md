@@ -36,7 +36,7 @@ The basic functional tester can be enhanced to generate a traffic on demand, bas
 
 ## ApiFlows load tester step 1
 
-Send an Injector message to a wire-in node to start a request:
+Send an Injector message to a wire-in node to start a request
 
 ![NodeRed load tester step 1](images/NodeRedTesterLoadStep1.png)
 
@@ -46,7 +46,7 @@ This requires to send one Injector message for each request sent to the service.
 
 ## ApiFlows load tester step 2
 
-Using an Injector message from a wire-out node to a wire-in node allows the traffic to continue:
+Using an Injector message from a wire-out node to a wire-in node allows the traffic to continue
 
 ![NodeRed load tester step 2](images/NodeRedTesterLoadStep2.png)
 
