@@ -29,8 +29,8 @@ All fields are mandatory.
 
 ## Download ApiFlows CLI
 
-* If you're a linux user, please download [af linux binary](https://github.com/ApiValley/ApiFlows-CLI/raw/master/linux/apiflows)
-* If you're a windows user, please download [af.exe windows binary](https://github.com/ApiValley/ApiFlows-CLI/raw/master/windows/apiflows.exe)
+* If you're a linux user, please download [apiflows linux binary](https://github.com/ApiValley/ApiFlows-CLI/raw/master/linux/apiflows)
+* If you're a windows user, please download [apiflows.exe windows binary](https://github.com/ApiValley/ApiFlows-CLI/raw/master/windows/apiflows.exe)
 
 [Back to top](#apiflows-setup)
 
@@ -38,7 +38,7 @@ All fields are mandatory.
 
 ### Linux
 
-* make af binary executable
+* make apiflows binary executable
 ```bash
 > chmod +x /path_to_apiflows_binary/apiflows
 ```
@@ -46,10 +46,11 @@ All fields are mandatory.
 ```bash
 > export PATH=/path_to_apiflows_binary:$PATH
 ```
-* execute init af subcommand
+* execute init apiflows subcommand
 ```bash
 > apiflows init
 ```
+
 
 ###  windows
 
