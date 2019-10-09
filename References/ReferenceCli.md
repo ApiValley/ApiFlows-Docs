@@ -63,12 +63,16 @@ Options:
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**Example :**
 ```bash
 $ apiflows create --flowId myflow
+
+response { statusCode: 200,
+  type: 'application/json',
+  body: { noderedHost: 'myflow.q0s86wls.apivalley.org' } }
 ```
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**What's done by ApiFlows when creating a Flow**
 
 ApiFlows automatically creates a new single sdk node-RED instance in the cloud , with a graphical editor.
-Editor URI is returned by create command
+Editor URI is returned by create command. In the example above, editor is reachable at http://myflow.q0s86wls.apivalley.org 
  
 
 
@@ -78,6 +82,7 @@ $ apiflows flow list
 
 list existing flows
 ```
+
 
 ### how to get the status of a flow
 
@@ -116,12 +121,8 @@ json file contains a json object with following properties : [**Flow**](CliFlow.
 *   If **mode** changes from **multi** to **sdk** : ApiFlows automatically stops  all the running multi Node-RED instances. It then creates a new single sdk node-RED instance , with a graphical editor reachable on the web.
 * if **mode** remains sdk : No impact
 * if **mode** remains multi and **autoscale** remains **false** and  **replicas** changes, apiflows scales up or down to the **replicas** number of instances
-* if **mode** remains multi and **autoscale** changes to **true**, apiflows start adapting the number of NodeRED instances automatically, based on workload . The minimum NodeRED instances will depend on **minReplicas** propery while the maximum NodeRED instances will be set by **maxReplicas** property
+* if **mode** remains multi and **autoscale** changes to **true**, apiflows start adapting the number of NodeRED instances automatically, based on workload . The minimum NodeRED instances will depend on **minReplicas** property while the maximum NodeRED instances will be set by **maxReplicas** property
 
-Example of flow lifecycle :
-
-T0 : $ apiflows flow create --flowId myflow
-T1 : $ apiflows flow modify --flowId myflow --file 
 
 
 ## context subcommand
@@ -143,7 +144,7 @@ Commands:
   delete [options]  delete contexts
   modify [options]  modify contexts
   ```
-### How to create (and inject )contexts
+### How to create contexts
 
 ```bash
 $ apiflows context create --help
@@ -156,8 +157,6 @@ Options:
   --flowId [flowId]    flow ID
   --nb <nb>            number of context to create
   --groupId [groupId]  group ID
-  --start              start context after creation
-  --wireIn [wireIn]    wire-in entry in which context must be started. Mandatory if --start is defined
   --file <path>        json file containing description of context
   -h, --help           output usage information
   ```
@@ -167,9 +166,6 @@ Options:
   * **groupId** is the group to which contexts will belong in the scope of the flowId. It enables to discriminate contexts, in case we would like to modify or stop  a part of them. ( see stop , start, modify, delete )
   * **json file** contains a description of context(s) to create. Here is a description of contexts json object : [Context](Context.md). If **groupId** is not defined, **contextId** is a mandatory property of the  Context object. In that case, ApiFlows creates only one Context with ID **contextId**. If **groupId** is defined, **contextId** must not be defined in context Object. In that case, ApiFlows creates **nb** contexts, with a generated ID, prefixed with  **groupId**, and suffixed with a number.
   
-  * if **--start** option is used, contexts are not only created, but also injected in ApiFlows messaging network.
-  As a consequence, they must be addressed to a **wire-in** 
-  node, using its **pin_name** address. Option **--wireIn** is mandatory and must target the **pin_name** of one **wire-in** node of the flow.
 
   ### How to list contexts
 
@@ -246,7 +242,7 @@ Options:
 * if **groupId** is defined, all contexts belonging to the group will be deleted. 
 * if **contextId** is defined, only one context is deleted
 
-### How to start context(s)
+### How to start ( inject ) context(s)
 
 
 ```bash
@@ -269,7 +265,7 @@ Options:
 * Injected contexts must be addressed to a **wire-in** 
   node, using its **pin_name** address. Option **--wireIn** is mandatory and must target the **pin_name** of one **wire-in** node of the flow.
 
-  ### How to stop context(s)
+  ### How to stop (eject ) context(s)
 
 
 ```bash

@@ -49,14 +49,14 @@ It appears in palette in category ApiFlows  under the name ApiFlows wire-in.
 one input  :
 
 * must contain **af_contextid** field
-* may contain **af_wirein** if it's at least the second time, message go through a wire-in node. Value of the field is the **pin_name** of last crossed wire-in node.
+
 
 Three outputs :
-* **active** output message is sent if input message contains **af_contextid** field, and context data for this context ID is not empty, and context state for this context ID is **NOT STOPPED**. It has the same context as input message except **af_context** and **af_state** which respectively contain context data and context state values for **af_contextid** ID. **af_wirein** field contains the **pin_name** value. It's a marker to let ApiFlows knows the message went through the wire-in node.
+* **active** output message is sent if input message contains **af_contextid** field, and context data for this context ID is not empty, and context state for this context ID is **NOT STOPPED**. It has the same content as input message except **af_context** and **af_state** which respectively contain context data and context state values for **af_contextid** ID. 
 
-* **inactive** output message is sent if input message contains **af_contextid** field, and context data for this context ID is not empty, and context state for this context ID is **STOPPED**. It has the same context as input message except **af_context** and **af_state** which respectively contain context data and context state values for **af_contextid** ID.**af_wirein** field is removed.
+* **inactive** output message is sent if input message contains **af_contextid** field, and context data for this context ID is not empty, and context state for this context ID is **STOPPED**. It has the same context as input message except **af_context** and **af_state** which respectively contain context data and context state values for **af_contextid** ID.
 
-* **error** output message is sent if input message does not contain **af_contextid** field, or context data for this context ID is empty, or error occured during read operation for this context ID. It has the same context as input message except **error** field which contains the error which occured during read context operation of **af_contextid** ID. **af_wirein** field is removed.
+* **error** output message is sent if input message does not contain **af_contextid** field, or context data for this context ID is empty, or error occured during read operation for this context ID. It has the same context as input message except **error** field which contains the error which occured during read context operation of **af_contextid** ID. 
 
 Two parameters :
 
@@ -81,19 +81,24 @@ Two parameters :
 
 * **name** : label of node as it appears in the flow
 * **target_pin_name** : address of the wire-in input node in ApiFlows messaging network.
-* **target_flow_name** :
+
 
 ## **ApiFlows metric node**
 
 ![ApiFlows metric node](../images/MetricNode.png)
 
 ```
-This node is used to feed metrics. Metrics are collected, aggregated and available in a grafana tenant at the following address : https://grafana.apivalley.org
+This node is used create and feed metrics. Metrics are collected, aggregated and made available in a grafana tenant at the following address : https://grafana.apivalley.org
 The node appears in palette in category ApiFlows  under the name ApiFlows wire-in.
 ```
 
-This 
+Five parameters :
 
+* **name** : label of node as it appears in the flow
+* **metric_type** : Can be chosen among **Counter**, **Gauge**, **Histogram**, **Summary**
+* **value** : Is not mandatory for counter ( Only value 1 is possible for counter and is set by default). Gauge accept negative values.
+* **buckets** : 
+* **percentiles** :
 
 
 
