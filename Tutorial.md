@@ -6,6 +6,8 @@
 * [Node-RED basic tester](#node-red-basic-tester)
 * [ApiFlows load tester](#apiflows-load-tester)
 * [ApiFlows load tester step 1](#apiflows-load-tester-step-1)
+* [ApiFlows load tester step 2](#apiflows-load-tester-step-2)
+* [ApiFlows load tester step 3](#apiflows-load-tester-step-3)
 
 ## Node-RED basic flow
 
@@ -34,11 +36,34 @@ The basic functional tester can be enhanced to generate a traffic on demand, bas
 
 ## ApiFlows load tester step 1
 
-Send an Injector message to start a request:
+Send an Injector message to a wire-in node to start a request:
 
 ![NodeRed load tester step 1](images/NodeRedTesterLoadStep1.png)
 
 [NodeRed load tester step 1 json](flows/NodeRedTesterLoadStep1.json)
 
+This requires to send one Injector message for each request sent to the service.
+
+## ApiFlows load tester step 2
+
+Using an Injector message from a wire-out node to a wire-in node allows the traffic to continue:
+
+![NodeRed load tester step 2](images/NodeRedTesterLoadStep2.png)
+
+[NodeRed load tester step 2 json](flows/NodeRedTesterLoadStep2.json)
+
+For each context injected, there will be one request per second in this example.
+
+## ApiFlows load tester step 3
+
+For now, the request sent to the service is always the same. The context can be used to store and update data related to a context. For example, the current angle can be stored in the context to remember which sinus was already computed. It can be incremented during the next context loop.
+
+A metrics node can be used to store a metric value in time-series database for further analysis. For example, it can be a counter incremented for each sinus computed.
+
+![NodeRed load tester step 3](images/NodeRedTesterLoadStep3.png)
+
+[NodeRed load tester step 3 json](flows/NodeRedTesterLoadStep3.json)
+
+A metric node can also be added to the service to count and validate that the number of requests sent on one side was well proccessed on the other. 
 
  [Back to top](#apiflows-concepts)
