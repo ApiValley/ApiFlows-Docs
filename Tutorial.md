@@ -93,6 +93,8 @@ with data pattern file containing a Json object :
 and then inject them with another command:
 apiflows context start --flowId myflowid --groupId mygroupid --wireIn mywirepiname
 
+and finally
+apiflows context delete --flowId myflowid --groupId mygroupid
 
 ## Monitoring
 
@@ -100,7 +102,7 @@ The Grafana dashboard is accessible at the address
 ```
 https://grafana.zmeter2.apivalley.org
 ```
-You can create your own dashboard, or import the one associated to the tutorial:
+You can create your own dashboard, or import the one associated with the tutorial:
 
 [myGrafanaDashboard.json](flows/LoadStepGrafana.json)
 
