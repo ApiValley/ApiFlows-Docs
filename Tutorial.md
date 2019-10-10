@@ -68,6 +68,7 @@ The flow file in json format can be downloaded at: [NodeRedBasicService.json][fl
 [flowBasicService]:https://github.com/ApiValley/ApiFlows-Docs/blob/master/flows/NodeRedBasicService.json "sinus service json file"
 
 Note: To import the flow in your Node-RED instance, follow the instructions [here][importNodeRED] 
+Note: Each time a flow is updated in the graphical interface, deploy MUST be done to push the flow to the Node-RED processing. The deploy button is in the upper right corner of the Node-RED page.
 
 [importNodeRED]: https://nodered.org/docs/user-guide/editor/workspace/import-export "Node-RED import/export"
 
