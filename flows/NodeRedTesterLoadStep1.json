@@ -1,15 +1,15 @@
 [
     {
-        "id": "a975d17d.898748",
+        "id": "8bc357e2.860d5",
         "type": "tab",
         "label": "Http Simu load tester step 1",
         "disabled": false,
         "info": ""
     },
     {
-        "id": "a627da99.eb2c5",
+        "id": "7db244ae.8e8824",
         "type": "inject",
-        "z": "a975d17d.898748",
+        "z": "8bc357e2.860d5",
         "name": "",
         "topic": "",
         "payload": "",
@@ -22,19 +22,19 @@
         "y": 120,
         "wires": [
             [
-                "2ff7696d.7ec2ee"
+                "3c5e550e.2eacba"
             ]
         ]
     },
     {
-        "id": "1f87b5cb.cffaaa",
+        "id": "4bc38c4c.e5b574",
         "type": "http request",
-        "z": "a975d17d.898748",
+        "z": "8bc357e2.860d5",
         "name": "Send request to /sinus",
         "method": "GET",
         "ret": "txt",
         "paytoqs": false,
-        "url": "http://sinus.mvcbasu9.apivalley.org/sinus?q={{{query}}}&format=json",
+        "url": "http://sinus.mvcbasu9.apivalley.org/sinus?angle={{{query}}}&format=json",
         "tls": "",
         "proxy": "",
         "authType": "",
@@ -42,15 +42,15 @@
         "y": 360,
         "wires": [
             [
-                "bd11783.2094208",
-                "55800459.7025a4"
+                "17e062ee.10cd35",
+                "b6d46dc4.0446e8"
             ]
         ]
     },
     {
-        "id": "6ad60b16.182ca4",
+        "id": "27ee541a.1e2b74",
         "type": "function",
-        "z": "a975d17d.898748",
+        "z": "8bc357e2.860d5",
         "name": "Prepare query",
         "func": "msg.query = msg.af_context.temp;\nmsg.af_context.temp = msg.af_context.temp + 1;\nreturn msg;",
         "outputs": 1,
@@ -59,14 +59,14 @@
         "y": 360,
         "wires": [
             [
-                "1f87b5cb.cffaaa"
+                "4bc38c4c.e5b574"
             ]
         ]
     },
     {
-        "id": "2d99e552.d42562",
+        "id": "7bcb355.adf094c",
         "type": "apiflows wire-in",
-        "z": "a975d17d.898748",
+        "z": "8bc357e2.860d5",
         "name": "wire-in",
         "pin_name": "INIT",
         "simulation_id": "",
@@ -74,16 +74,16 @@
         "y": 200,
         "wires": [
             [
-                "716a91f.73b687"
+                "f215cb30.1ef08"
             ],
             [],
             []
         ]
     },
     {
-        "id": "716a91f.73b687",
+        "id": "f215cb30.1ef08",
         "type": "function",
-        "z": "a975d17d.898748",
+        "z": "8bc357e2.860d5",
         "name": "Initial event",
         "func": "msg.af_context.temp = 0;\nreturn msg;",
         "outputs": 1,
@@ -92,14 +92,14 @@
         "y": 200,
         "wires": [
             [
-                "a656bca2.4f08b8"
+                "f995daf3.ad215"
             ]
         ]
     },
     {
-        "id": "bd11783.2094208",
+        "id": "17e062ee.10cd35",
         "type": "function",
-        "z": "a975d17d.898748",
+        "z": "8bc357e2.860d5",
         "name": "Validate response",
         "func": "msg.result = JSON.parse(msg.payload);\nmsg.af_contextid\nreturn msg;",
         "outputs": 1,
@@ -111,9 +111,9 @@
         ]
     },
     {
-        "id": "2ff7696d.7ec2ee",
+        "id": "3c5e550e.2eacba",
         "type": "function",
-        "z": "a975d17d.898748",
+        "z": "8bc357e2.860d5",
         "name": "",
         "func": "msg.af_context = {};\nreturn msg;",
         "outputs": 1,
@@ -122,14 +122,14 @@
         "y": 120,
         "wires": [
             [
-                "716a91f.73b687"
+                "f215cb30.1ef08"
             ]
         ]
     },
     {
-        "id": "55800459.7025a4",
+        "id": "b6d46dc4.0446e8",
         "type": "debug",
-        "z": "a975d17d.898748",
+        "z": "8bc357e2.860d5",
         "name": "Sinus",
         "active": true,
         "tosidebar": true,
@@ -142,12 +142,12 @@
         "wires": []
     },
     {
-        "id": "a656bca2.4f08b8",
+        "id": "f995daf3.ad215",
         "type": "link out",
-        "z": "a975d17d.898748",
+        "z": "8bc357e2.860d5",
         "name": "Start query",
         "links": [
-            "6b1a2d79.f05e2c"
+            "624d9d71.64dd84"
         ],
         "x": 630,
         "y": 200,
@@ -155,18 +155,18 @@
         "l": true
     },
     {
-        "id": "6b1a2d79.f05e2c",
+        "id": "624d9d71.64dd84",
         "type": "link in",
-        "z": "a975d17d.898748",
+        "z": "8bc357e2.860d5",
         "name": "Start query",
         "links": [
-            "a656bca2.4f08b8"
+            "f995daf3.ad215"
         ],
         "x": 180,
         "y": 360,
         "wires": [
             [
-                "6ad60b16.182ca4"
+                "27ee541a.1e2b74"
             ]
         ],
         "l": true

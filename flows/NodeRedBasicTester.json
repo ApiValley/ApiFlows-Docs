@@ -1,15 +1,15 @@
 [
     {
-        "id": "45646f89.ff2368",
+        "id": "dc5ac755.2471",
         "type": "tab",
         "label": "Http Simu Step1",
         "disabled": false,
         "info": ""
     },
     {
-        "id": "b965515.02758b",
+        "id": "9ff10798.cac848",
         "type": "inject",
-        "z": "45646f89.ff2368",
+        "z": "dc5ac755.2471",
         "name": "Start request",
         "topic": "",
         "payload": "",
@@ -22,19 +22,19 @@
         "y": 100,
         "wires": [
             [
-                "9c9ee8d8.819ee"
+                "dabc3dc9.dbc64"
             ]
         ]
     },
     {
-        "id": "b2ccf709.fdba3",
+        "id": "4237d569.b39904",
         "type": "http request",
-        "z": "45646f89.ff2368",
+        "z": "dc5ac755.2471",
         "name": "Send request to /sinus",
         "method": "GET",
         "ret": "txt",
         "paytoqs": false,
-        "url": "http://sinus.mvcbasu9.apivalley.org/sinus?q={{{query}}}&format=json",
+        "url": "http://sinus.mvcbasu9.apivalley.org/sinus?angle={{{query}}}&format=json",
         "tls": "",
         "proxy": "",
         "authType": "",
@@ -42,15 +42,15 @@
         "y": 100,
         "wires": [
             [
-                "409d0421.33293c",
-                "6c83b699.1573c"
+                "7174da23.40575c",
+                "77b007df.b7f618"
             ]
         ]
     },
     {
-        "id": "409d0421.33293c",
+        "id": "7174da23.40575c",
         "type": "debug",
-        "z": "45646f89.ff2368",
+        "z": "dc5ac755.2471",
         "name": "Sinus",
         "active": true,
         "tosidebar": true,
@@ -63,9 +63,9 @@
         "wires": []
     },
     {
-        "id": "9c9ee8d8.819ee",
+        "id": "dabc3dc9.dbc64",
         "type": "function",
-        "z": "45646f89.ff2368",
+        "z": "dc5ac755.2471",
         "name": "Prepare query",
         "func": "msg.query = 0;\nreturn msg;",
         "outputs": 1,
@@ -74,14 +74,14 @@
         "y": 100,
         "wires": [
             [
-                "b2ccf709.fdba3"
+                "4237d569.b39904"
             ]
         ]
     },
     {
-        "id": "6c83b699.1573c",
+        "id": "77b007df.b7f618",
         "type": "function",
-        "z": "45646f89.ff2368",
+        "z": "dc5ac755.2471",
         "name": "Validate response",
         "func": "msg.result = JSON.parse(msg.payload);\nreturn msg;",
         "outputs": 1,

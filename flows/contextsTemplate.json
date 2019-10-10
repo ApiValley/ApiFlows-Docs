@@ -1,0 +1,4 @@
+{
+    "data": {"prop1": "value1", "prop2": "value2", "mintemp": 10, "maxtemp": 23},
+    "state": "STARTED"
+}

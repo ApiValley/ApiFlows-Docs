@@ -11,7 +11,9 @@
 * [ApiFlows load tester step2](#apiflows-load-tester-step2)
 * [ApiFlows load tester step3](#apiflows-load-tester-step3)
 * [Contexts injection](#contexts-injection)
+* [ApiFlows scalability](#apiflows-scalability)
 * [Monitoring](#monitoring)
+* [Flows stop](#flows-stop)
 
 
 ## Objectives
@@ -23,19 +25,19 @@ To illustrate all those aspects, we are going to develop a web service, as an Ap
 Then, we'll develop another ApiFlows flow to test the sinus service step by step, starting from a basic tester flow to just send a request to a full load testing managing a group of context, sending one different request per context and per second.
 
 
-## ApiFlows flows initialisation
+## ApiFlows flows initialisation
 
 The first step is to create the two flows required for this tutorial to be able access the Node-RED instances for the sinus service and the tester. 
 First, initialize the communication with ApiFlows by running the command:
 ```
-apiflows init
+$ apiflows init
 ```
 you'll be prompted for your email and password as you set when you created your account.
 
 Then, you can create the two flows by running:
 ```
-apiflows flow create --flowId sinus
-apiflows flow create --flowId tester
+$ apiflows flow create --flowId sinus
+$ apiflows flow create --flowId tester
 ```
 
 Those two commands will instantiate two Node-RED that you'll be able to access using the links: 
@@ -45,10 +47,11 @@ http://tester.youruserid.apivalley.org
 ```
 where youruserid is the value of the field userId returned in the result of the command:
 ```
-apiflows user list
+$ apiflows user list
 ```
 
-At this point, we are ready to start developping flows. Let start with the sinus flow.
+In can take one minute for the instances to become up and running.
+At this point, we are ready to start developping flows. Let start with the sinus service flow.
 
 ## Node-RED basic flow
 
@@ -75,7 +78,7 @@ The sinus service can be reached using the NodeRed host name and the path /sinus
 where the flowId is the one you set when you created the flow, sinus in this case,
 and the accountId can be found using the command: 
 ```
-apiflows user list.
+$ apiflows user list.
 ```
 
 
@@ -112,7 +115,33 @@ The flow file in json format can be downloaded at: [NodeRed load tester step 1.j
 
 [nrloadtest1]: flows/NodeRedTesterLoadStep1.json "tester flow json file with wire-in"
 
-This requires to send one Injector message for each request sent to the service. Follow the procedure [Contexts injection](#contexts-injection)
+This requires to send one Injector message for each request sent to the service. 
+
+Lets send one Injector message. First, dowload the contexts data template : [contextsTemplate.json][contextstemplate]
+
+[contextstemplate]: flows/contextsTemplate.json "contexts data template file"
+
+Then run the two following commands to create 1 context in one group, and inject it with the entry name INIT:
+```
+$ apiflows context create --flowId tester --nb 1 --groupId group1 --file flows/contextsTemplate.json
+$ apiflows context start --flowId tester --groupId group1 --wireIn INIT
+```
+
+In the tester SDK Node-RED, the debug message should appear :
+
+![NodeRed load tester step 1: message in the debug tabulation](images/NodeRedTesterLoadStep1_debugmessage.png)
+
+and if you expand the result data object, you should see the result returned by the sinus service:
+ 
+![message details in the debug tabulation](images/NodeRedTesterLoadStep1_debugmessagedetails.png)
+
+In the payload of the result, angle=0 is the angle, and sinus=0 is the resulting sinus value.
+
+and finally, contexts can be removed from running loop with the command:
+```
+$ apiflows context delete --flowId myflowid --groupId mygroupid 
+```
+
 
 
 ## ApiFlows load tester step2
@@ -149,7 +178,7 @@ A metric node can also be added to the service to count and validate that the nu
 
 The ApiFlows interface allows you to create a group of context from the same data pattern with a unique command:
 ```
-apiflows context create --flowId myflowid --nb contextsnumber --groupId mygroupid --file /var/contextsTemplate.json
+$ apiflows context create --flowId myflowid --nb contextsnumber --groupId mygroupid --file /var/contextsTemplate.json
 ```
 with data pattern file containing a Json object like :
 ```
@@ -159,15 +188,80 @@ with data pattern file containing a Json object like :
 }
 ```
 
-and then inject them with another command:
+and then inject them into a running flow with the command:
 ```
-apiflows context start --flowId myflowid --groupId mygroupid --wireIn mywirepiname
+$ apiflows context start --flowId myflowid --groupId mygroupid --wireIn mywirepiname
 ```
 
 and finally, contexts can be removed from running loop with the command:
 ```
-apiflows context delete --flowId myflowid --groupId mygroupid
+$ apiflows context delete --flowId myflowid --groupId mygroupid
 ```
+
+
+## ApiFlows scalability
+
+The two flows are running in SDK mode, the graphical interface is available, but they cannot scale. To know the status of the current running flows, run the command:
+```
+$ apiflows flow list
+```
+which should output:
+```
+response { statusCode: 200,
+  type: 'application/json',
+  body: 
+   [ { userId: 'myuserid',
+       accountId: 'myuserid-a',
+       subscriptionId: 'myuserid-s',
+       simulationId: 'sinus',
+       mode: 'sdk',
+       replicas: 1,
+       service: 'on',
+       ingress: 'on',
+       autoscaler: 'off',
+       configmap: 'on' },
+     { userId: 'myuserid',
+       accountId: 'myuserid-a',
+       subscriptionId: 'myuserid-s',
+       simulationId: 'tester',
+       mode: 'sdk',
+       replicas: 1,
+       service: 'on',
+       ingress: 'on',
+       autoscaler: 'off',
+       configmap: 'on' } ] }
+```
+Each flow is in SDK mode, with only one instance running and no autoscaler enabled:        
+```
+       mode: 'sdk',
+       replicas: 1,
+       autoscaler: 'off',
+```
+
+Scaling requires to update the ApiFlows flow in multi mode. 
+
+The first step is to define what scalability is expected. It is defined in a json file with a content similar to:
+```
+{
+    "userId": "myuserid",
+    "accountId": "myuserid-a",
+    "subscriptionId": "myuserid-s",
+    "simulationId": "myflowid",
+    "mode": "multi",
+    "replicas": 1,
+    "minReplicas": 1,
+    "maxReplicas": 3,
+    "autoscale": true
+}
+```
+in which myuserid is replaced with your own user id, and mysimulation is replaced with the name of the flow (sinus and tester lin this tutorial).
+
+Then to apply this, run the command:
+```
+$ apiflows flow modify --flowId myflowid --file ./myflowidMultiScale.json
+```
+the SDK instance will stop and a new scalable instance should start. The flow is now ready to scale from 1 to 3 instances.
+
 
 
 ## Monitoring
@@ -176,10 +270,19 @@ The Grafana dashboard is accessible at the address
 ```
 https://grafana.zmeter2.apivalley.org
 ```
-You can create your own dashboard, or import the one associated with the tutorial:
+You can create your own dashboard, or import the one associated with the tutorial: [myGrafanaDashboard.json][dashboardjson]
 
-[myGrafanaDashboard.json](flows/LoadStepGrafana.json)
+[dashboardjson]: flows/LoadStepGrafana.json "json dashboard description to be imported in Grafana"
 
+
+
+## Flows stop
+
+To stop the flows, just delete the ApiFlows flow object. Run the commands:
+```
+$ apiflows flow delete --flowId tester
+$ apiflows flow delete --flowId sinus
+```
 
 
  [Back to top](#apiflows-concepts)

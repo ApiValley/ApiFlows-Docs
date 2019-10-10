@@ -13,7 +13,7 @@
         "name": "",
         "statusCode": "200",
         "headers": {},
-        "x": 640,
+        "x": 860,
         "y": 140,
         "wires": []
     },
@@ -22,15 +22,15 @@
         "type": "function",
         "z": "ec3d1ca9.0ece6",
         "name": "Compute function",
-        "func": "msg.payload.sin = Math.sin(msg.payload.q);\nreturn msg;",
+        "func": "msg.payload.sinus = Math.sin(msg.payload.angle);\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "x": 430,
         "y": 140,
         "wires": [
             [
-                "38d17773.62fea",
-                "48f94f0f.3d15b8"
+                "48f94f0f.3d15b8",
+                "2be4ced6.b7daa2"
             ]
         ]
     },
@@ -62,8 +62,25 @@
         "tostatus": false,
         "complete": "true",
         "targetType": "full",
-        "x": 650,
+        "x": 670,
         "y": 200,
         "wires": []
+    },
+    {
+        "id": "2be4ced6.b7daa2",
+        "type": "apiflows metric",
+        "z": "ec3d1ca9.0ece6",
+        "name": "sinuscomputed",
+        "metric_type": "COUNTER",
+        "value": "1",
+        "buckets": "true",
+        "percentiles": "true",
+        "x": 680,
+        "y": 140,
+        "wires": [
+            [
+                "38d17773.62fea"
+            ]
+        ]
     }
 ]
