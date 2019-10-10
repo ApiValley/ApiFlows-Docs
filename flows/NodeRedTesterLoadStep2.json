@@ -1,0 +1,258 @@
+[
+    {
+        "id": "99678378.b2dd1",
+        "type": "tab",
+        "label": "Http Simu load tester step 2",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "419004ba.77b6f4",
+        "type": "inject",
+        "z": "99678378.b2dd1",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 120,
+        "y": 100,
+        "wires": [
+            [
+                "48df060e.aba26"
+            ]
+        ]
+    },
+    {
+        "id": "ce22a1d2.cdf4a8",
+        "type": "http request",
+        "z": "99678378.b2dd1",
+        "name": "Send request to /sinus",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": false,
+        "url": "http://sinus.mvcbasu9.apivalley.org/sinus?q={{{query}}}&format=json",
+        "tls": "",
+        "proxy": "",
+        "authType": "",
+        "x": 600,
+        "y": 340,
+        "wires": [
+            [
+                "1eb9ed56.25a8ab",
+                "5a729ae5.8a6c0c"
+            ]
+        ]
+    },
+    {
+        "id": "2b4d72e7.705d5e",
+        "type": "function",
+        "z": "99678378.b2dd1",
+        "name": "Prepare query",
+        "func": "msg.query = msg.af_context.temp;\nmsg.af_context.temp = msg.af_context.temp + 1;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 380,
+        "y": 340,
+        "wires": [
+            [
+                "ce22a1d2.cdf4a8"
+            ]
+        ]
+    },
+    {
+        "id": "47315337.04415c",
+        "type": "apiflows wire-in",
+        "z": "99678378.b2dd1",
+        "name": "wire-in INIT",
+        "pin_name": "INIT",
+        "simulation_id": "",
+        "x": 110,
+        "y": 180,
+        "wires": [
+            [
+                "e02d90b2.eaf7b8"
+            ],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "b298ba7f.5b1278",
+        "type": "apiflows wire-out",
+        "z": "99678378.b2dd1",
+        "name": "wire-out CONTINUE",
+        "target_flow_name": "",
+        "target_pin_name": "CONTINUE",
+        "grouped_by": "",
+        "x": 540,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "4febed9f.27585c",
+        "type": "apiflows wire-in",
+        "z": "99678378.b2dd1",
+        "name": "wire-in CONTINUE",
+        "pin_name": "CONTINUE",
+        "simulation_id": "",
+        "x": 130,
+        "y": 340,
+        "wires": [
+            [
+                "2b4d72e7.705d5e"
+            ],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "e02d90b2.eaf7b8",
+        "type": "function",
+        "z": "99678378.b2dd1",
+        "name": "Initial event",
+        "func": "msg.af_context.temp = 0;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 470,
+        "y": 180,
+        "wires": [
+            [
+                "62e32b81.8e0164"
+            ]
+        ]
+    },
+    {
+        "id": "406c6731.5a1e2",
+        "type": "delay",
+        "z": "99678378.b2dd1",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "1",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 340,
+        "y": 480,
+        "wires": [
+            [
+                "b298ba7f.5b1278"
+            ]
+        ]
+    },
+    {
+        "id": "1eb9ed56.25a8ab",
+        "type": "function",
+        "z": "99678378.b2dd1",
+        "name": "Validate response",
+        "func": "msg.result = JSON.parse(msg.payload);\nmsg.af_contextid\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 830,
+        "y": 340,
+        "wires": [
+            [
+                "d952074.e29bef8"
+            ]
+        ]
+    },
+    {
+        "id": "48df060e.aba26",
+        "type": "function",
+        "z": "99678378.b2dd1",
+        "name": "",
+        "func": "msg.af_context = {};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 270,
+        "y": 100,
+        "wires": [
+            [
+                "e02d90b2.eaf7b8"
+            ]
+        ]
+    },
+    {
+        "id": "5a729ae5.8a6c0c",
+        "type": "debug",
+        "z": "99678378.b2dd1",
+        "name": "Sinus",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 790,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "d952074.e29bef8",
+        "type": "link out",
+        "z": "99678378.b2dd1",
+        "name": "Post execution",
+        "links": [
+            "6bbcbd7a.185224"
+        ],
+        "x": 1040,
+        "y": 340,
+        "wires": [],
+        "l": true
+    },
+    {
+        "id": "62e32b81.8e0164",
+        "type": "link out",
+        "z": "99678378.b2dd1",
+        "name": "Start query",
+        "links": [
+            "902ed4fd.1b14b"
+        ],
+        "x": 650,
+        "y": 180,
+        "wires": [],
+        "l": true
+    },
+    {
+        "id": "902ed4fd.1b14b",
+        "type": "link in",
+        "z": "99678378.b2dd1",
+        "name": "Start query",
+        "links": [
+            "62e32b81.8e0164"
+        ],
+        "x": 245,
+        "y": 280,
+        "wires": [
+            [
+                "2b4d72e7.705d5e"
+            ]
+        ],
+        "l": true
+    },
+    {
+        "id": "6bbcbd7a.185224",
+        "type": "link in",
+        "z": "99678378.b2dd1",
+        "name": "Post execution",
+        "links": [
+            "d952074.e29bef8"
+        ],
+        "x": 140,
+        "y": 480,
+        "wires": [
+            [
+                "406c6731.5a1e2"
+            ]
+        ],
+        "l": true
+    }
+]
