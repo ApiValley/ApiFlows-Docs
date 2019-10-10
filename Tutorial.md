@@ -22,7 +22,7 @@ This trial aim to introduce step by step the different features provided by ApiF
 
 To illustrate all those aspects, we are going to develop a web service, as an ApiFlows flow, to compute the trigonometric sinus value of an angle provided as parameter in the http request. So, the service logique will be very simple: it receives a request, extract the angle from the parameters, compute the sinus, increment a counter to monitor the number of requests processed, and send back the result.
 
-Then, we'll develop another ApiFlows flow to test the sinus service step by step, starting from a basic tester flow to just send a request to a full load testing managing a group of context, sending one different request per context and per second.
+Then, we'll develop another ApiFlows flow to test the sinus service step by step, starting from a basic tester flow sending just a request to a full load testing managing a group of context, sending one different request per context and per second.
 
 
 ## ApiFlows flows initialisation
