@@ -2,6 +2,8 @@
 
 [TOC](./README.md#table-of-content) 
 
+* [Objectives](#objectives)
+* [ApiFlows flows initialisation](#apiflows-flows-initialisation)
 * [Node-RED basic flow](#node-red-basic-flow)
 * [Node-RED basic functional tester](#node-red-basic-functional-tester)
 * [ApiFlows load tester](#apiflows-load-tester)
@@ -11,41 +13,95 @@
 * [Contexts injection](#context-injection)
 * [Monitoring](#monitoring)
 
+
+## Objectives
+
+This trial aim to introduce step by step the different features provided by ApiFlows: a graphical interface to develop services based on Node-RED, horizontal scalability to adapt the service capacity to the demand using container orchestration, traffic distribution with load balancing and contexts shared over the parallel instances, and application monitoring thru Grafana dashboard.
+
+To illustrate all those aspects, we are going to develop a web service, as an ApiFlows flow, to compute the trigonometric sinus value of an angle provided as parameter in the http request. So, the service logique will be very simple: it receives a request, extract the angle from the parameters, compute the sinus, increment a counter to monitor the number of requests processed, and send back the result.
+
+Then, we'll develop another ApiFlows flow to test the sinus service step by step, starting from a basic tester flow to just send a request to a full load testing managing a group of context, sending one different request per context and per second.
+
+
+## ApiFlows flows initialisation
+
+The first step is to create the two flows required for this tutorial to be able access the Node-RED instances for the sinus service and the tester. 
+First, initialize the communication with ApiFlows by running the command:
+```
+apiflows init
+```
+you'll be prompted for your email and password as you set when you created your account.
+
+Then, you can create the two flows by running:
+```
+apiflows flow create --flowId sinus
+apiflows flow create --flowId tester
+```
+
+Those two commands will instantiate two Node-RED that you'll be able to access using the links: 
+```
+http://sinus.youruserid.apivalley.org
+http://tester.youruserid.apivalley.org
+```
+where youruserid is the value of the field userId returned in the result of the command:
+```
+apiflows user list
+```
+
+At this point, we are ready to start developping flows. Let start with the sinus flow.
+
 ## Node-RED basic flow
 
-Node-RED already has many different connectors to implement multiple kind of flows. For example, it can act as a web server to provide a service. In the following example, it provides a flow to compute the sinus of an angle provided in the http request's parameters:
+Open a web browser with the link: http://sinus.youruserid.apivalley.org
+
+Node-RED already has many different connectors/nodes to implement multiple kind of flows. It can act as a web server to provide a web service. The sinus flow aim to compute the sinus of an angle provided in the http request's parameters. For this logic, a first node will receive the incoming http request at the entry point "/sinus", an other one will extract the parameter and compute the sinus, and a last node will send back the result. An additional node will be required to increment a metric's counter to monitor the number of requests processed.
+
+The resulting flow should be:
 
 ![Basic NodeRed flow](images/NodeRedBasicService.png)
 
-![Basic NodeRed flow.json](flows/NodeRedBasicService.json)
-Note: To import the flow in your Node-RED instance, follow the instructions [here][import] 
+The flow file in json format can be downloaded at: [NodeRedBasicService.json][flowBasicService]
 
-[import]: https://nodered.org/docs/user-guide/editor/workspace/import-export "Node-RED import/export"
+[flowBasicService]:https://github.com/ApiValley/ApiFlows-Docs/blob/master/flows/NodeRedBasicService.json "sinus service json file"
 
-The flow can be reached using the NodeRed host name and the path /sinus
+Note: To import the flow in your Node-RED instance, follow the instructions [here][importNodeRED] 
+
+[importNodeRED]: https://nodered.org/docs/user-guide/editor/workspace/import-export "Node-RED import/export"
+
+The sinus service can be reached using the NodeRed host name and the path /sinus:
 ```
-"http://<flowId>.<accountId>.apivalley.org/sinus?q=32151.1"
+"http://flowId.accountId.apivalley.org/sinus?q=32151.1"
 ```
-where the flowId is the one you set when you created the flow
-and the accountId can be found using the comand apiflows user list.
+where the flowId is the one you set when you created the flow, sinus in this case,
+and the accountId can be found using the command: 
+```
+apiflows user list.
+```
+
 
 ## Node-RED basic functional tester
+
+Open a web browser with the link: http://tester.youruserid.apivalley.org
 
 The same principle can used to validate the web service. A flow can be embedded in the same flow as a new tab or can be a flow on its own.
 
 ![Basic NodeRed tester](images/NodeRedTesterFlow.png)
 
-![Basic NodeRed tester.json](flows/NodeRedBasicService.json)
+The flow file in json format can be downloaded at: [NodeRedBasictester.json][flowBasicTester]
 
-Now, a request to the service can be generated by clicking on the Start Request inject node. It capacity to generate traffic is very limited and not flexible
+[flowBasicTester]: flows/NodeRedBasicTester.json "tester flow json file"
+
+Now, a request to the service can be generated by clicking on the Start Request inject node. Its capacity to generate traffic is very limited and not flexible. This is why we are introducing 
 
 
 ## ApiFlows load tester
 
-The basic functional tester can be enhanced to generate a traffic on demand, based on those base flows, we can enrich the tester to capture some metrics and/or generate traffic for numerous different contexts objects.
+The basic functional tester can be enhanced to generate a traffic on demand, for numerous different contexts objects and to capture some metrics to monitor the test execution.
 
 
 ## ApiFlows load tester step1
+
+ApiFlows wire-in and wire-out nodes are introduce to offer the capacity to maintain a context state alive for a given context. The context can continue during the full test duration
 
 Send an Injector message to a wire-in node to start a request
 
