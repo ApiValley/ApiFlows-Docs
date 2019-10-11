@@ -13,6 +13,7 @@
 * [Contexts injection](#contexts-injection)
 * [ApiFlows scalability](#apiflows-scalability)
 * [Monitoring](#monitoring)
+* [Inject contexts](#inject-contexts)
 * [Flows stop](#flows-stop)
 
 
@@ -140,7 +141,7 @@ In the payload of the result, angle=0 is the angle, and sinus=0 is the resulting
 
 and finally, contexts can be removed from running loop with the command:
 ```
-$ apiflows context delete --flowId myflowid --groupId mygroupid 
+$ apiflows context delete --flowId tester --groupId group1 
 ```
 
 
@@ -255,15 +256,41 @@ The first step is to define what scalability is expected. It is defined in a jso
     "autoscale": true
 }
 ```
-in which myuserid is replaced with your own user id, and mysimulation is replaced with the name of the flow (sinus and tester lin this tutorial).
+in which myuserid is replaced with your own user id, and mysimulation is replaced with the name of the flow (sinus and tester in this tutorial).
 
-Then to apply this, run the command:
+To switch both tester and sinus SDK into Multi scalable instances, run the commands:
 ```
-$ apiflows flow modify --flowId myflowid --file ./myflowidMultiScale.json
+$ apiflows flow modify --flowId tester --file flows/testerMulti.json
+$ apiflows flow modify --flowId sinus --file flows/sinusMulti.json
 ```
 the SDK instance will stop and a new scalable instance should start. The flow is now ready to scale from 1 to 3 instances.
 
 
+
+## Inject contexts
+
+Now, we want to start some context to observe the behavior of the service when under traffic. So, first, create some groups of contexts:
+```
+$ apiflows context create --flowId tester --nb 100 --groupId group1 --file flows/contextsTemplate.json
+$ apiflows context create --flowId tester --nb 100 --groupId group2 --file flows/contextsTemplate.json
+$ apiflows context create --flowId tester --nb 100 --groupId group3 --file flows/contextsTemplate.json
+```
+It creates 3 groups named group1 group2 and group3 with 100 contexts each.
+
+and inject the first one:
+```
+$ apiflows context start --flowId tester --groupId group1 --wireIn INIT
+```
+
+You should observe the number of contexts in activity and the CPU laod increase in the Grafana dashboard. 
+
+After few minutes, inject an other group:
+```
+$ apiflows context start --flowId tester --groupId group2 --wireIn INIT
+```
+You should observe the number of contexts and CPU load continue to increase. If the CPU load exceeds 70%, the tester and the sinus flows should scale up after few minutes.
+
+Repeat this with group3, and observe again a CPU increase and service scale up.
 
 ## Monitoring
 
@@ -275,6 +302,18 @@ You can create your own dashboard, or import the one associated with the tutoria
 
 [dashboardjson]: flows/LoadStepGrafana.json "json dashboard description to be imported in Grafana"
 
+
+## Delete the contexts
+
+The contexts can be removed from running loop with the command delete applied to each group:
+```
+$ apiflows context delete --flowId tester --groupId group1
+$ apiflows context delete --flowId tester --groupId group2
+$ apiflows context delete --flowId tester --groupId group3
+```
+
+Scale down may take 5 minutes to happened. It waits for this duration to confirm the need to scale down. 
+So, Wait more than 5 minutes between the different context deletion to observe the impact in terms of CPU, and scale down.
 
 
 ## Flows stop
