@@ -19,6 +19,23 @@
   "links": [],
   "panels": [
     {
+      "content": "\n# CPU consumption\n\nThis metric provides the CPU consumption for each running flow. It is an overall consumption of the different replicas.\n\n\n\n",
+      "gridPos": {
+        "h": 8,
+        "w": 4,
+        "x": 0,
+        "y": 0
+      },
+      "id": 22,
+      "links": [],
+      "mode": "markdown",
+      "options": {},
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "CPU",
+      "type": "text"
+    },
+    {
       "aliasColors": {},
       "bars": false,
       "dashLength": 10,
@@ -27,7 +44,7 @@
       "gridPos": {
         "h": 8,
         "w": 12,
-        "x": 0,
+        "x": 4,
         "y": 0
       },
       "id": 2,
@@ -55,6 +72,7 @@
       "steppedLine": false,
       "targets": [
         {
+          "alias": "Tester CPU",
           "groupBy": [
             {
               "params": [
@@ -71,7 +89,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT sum(\"cpu_usage_nanocores\")/1000000000 FROM \"kubernetes_pod_container\" WHERE (\"pod_name\" =~ /^nodered-.*-senssim.*$/) AND $timeFilter GROUP BY time($__interval) fill(previous)",
+          "query": "SELECT sum(\"cpu_usage_nanocores\")/1000000000 FROM \"kubernetes_pod_container\" WHERE (\"pod_name\" =~ /^nodered-.*-tester.*$/) AND $timeFilter GROUP BY time($__interval) fill(previous)",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -92,6 +110,7 @@
           "tags": []
         },
         {
+          "alias": "Sinus CPU",
           "groupBy": [
             {
               "params": [
@@ -171,147 +190,21 @@
       }
     },
     {
-      "cacheTimeout": null,
+      "content": "\n# Number of replicas\n\nThis metrics provides the number of replicas for each running flow.\n\n\n\n",
       "gridPos": {
         "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 0
+        "w": 4,
+        "x": 0,
+        "y": 8
       },
-      "id": 14,
+      "id": 20,
       "links": [],
-      "options": {
-        "fieldOptions": {
-          "calcs": [
-            "sum"
-          ],
-          "defaults": {
-            "decimals": -5,
-            "max": 100,
-            "min": 0
-          },
-          "mappings": [],
-          "override": {},
-          "thresholds": [
-            {
-              "color": "green",
-              "index": 0,
-              "value": null
-            },
-            {
-              "color": "red",
-              "index": 1,
-              "value": 80
-            }
-          ],
-          "values": false
-        },
-        "orientation": "auto",
-        "showThresholdLabels": true,
-        "showThresholdMarkers": false
-      },
-      "pluginVersion": "6.2.5",
-      "targets": [
-        {
-          "groupBy": [],
-          "measurement": "af_node_red_counter_metric_sinusrequests",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT sum(\"counter\") FROM \"af_node_red_counter_metric_sinusrequests\" WHERE $timeFilter GROUP BY time($__interval) fill(null)\n",
-          "rawQuery": false,
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "counter"
-                ],
-                "type": "field"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "measurement": "af_node_red_counter_metric_sinusresults",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "query": "SELECT sum(\"counter\") FROM \"af_node_red_counter_metric_sinusresults\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
-          "rawQuery": true,
-          "refId": "B",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "counter"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "sum"
-              }
-            ]
-          ],
-          "tags": []
-        },
-        {
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "measurement": "af_node_red_counter_metric_sinuscomputed",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "refId": "C",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "counter"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "sum"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
+      "mode": "markdown",
+      "options": {},
       "timeFrom": null,
       "timeShift": null,
-      "title": "Panel Title",
-      "type": "gauge"
+      "title": "Replicas",
+      "type": "text"
     },
     {
       "aliasColors": {},
@@ -322,7 +215,7 @@
       "gridPos": {
         "h": 8,
         "w": 12,
-        "x": 0,
+        "x": 4,
         "y": 8
       },
       "id": 9,
@@ -350,6 +243,7 @@
       "steppedLine": false,
       "targets": [
         {
+          "alias": "Timer replicas",
           "groupBy": [
             {
               "params": [
@@ -366,7 +260,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT sum(\"gauge\") FROM \"kube_deployment_status_replicas_available\" WHERE  (\"deployment\" =~ /^nodered-.*-senssim/) AND $timeFilter GROUP BY time($__interval) fill(previous)\n",
+          "query": "SELECT sum(\"gauge\") FROM \"kubernetes_deployment_status_replicas_available\" WHERE  (\"deployment\" =~ /^nodered-.*-tester/) AND $timeFilter GROUP BY time($__interval) fill(previous)\n",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -387,6 +281,7 @@
           "tags": []
         },
         {
+          "alias": "Sinus replicas",
           "groupBy": [
             {
               "params": [
@@ -403,7 +298,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "SELECT sum(\"gauge\") FROM \"kube_deployment_status_replicas_available\" WHERE  (\"deployment\" =~ /^nodered-.*-sinus/) AND $timeFilter GROUP BY time($__interval) fill(previous)",
+          "query": "SELECT sum(\"gauge\") FROM \"kubernetes_deployment_status_replicas_available\" WHERE  (\"deployment\" =~ /^nodered-.*-sinus/) AND $timeFilter GROUP BY time($__interval) fill(previous)",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -466,6 +361,23 @@
       }
     },
     {
+      "content": "\n# Flows counters\n\nThis metrics provide the values of the different counters introduced in the flows.\n\n\n\n",
+      "gridPos": {
+        "h": 8,
+        "w": 4,
+        "x": 0,
+        "y": 16
+      },
+      "id": 18,
+      "links": [],
+      "mode": "markdown",
+      "options": {},
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Counters",
+      "type": "text"
+    },
+    {
       "aliasColors": {},
       "bars": false,
       "dashLength": 10,
@@ -474,8 +386,8 @@
       "gridPos": {
         "h": 8,
         "w": 12,
-        "x": 12,
-        "y": 8
+        "x": 4,
+        "y": 16
       },
       "id": 11,
       "legend": {
@@ -519,7 +431,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select non_negative_derivative(\"max\",1s) from (SELECT max(\"sum\") as \"max\"  from (SELECT sum(\"counter\") as \"sum\" FROM \"af_node_red_counter_metric_sinusrequests\" WHERE (\"flowId\" = 'senssim' ) AND $timeFilter GROUP BY time($__interval) fill(previous)) WHERE $timeFilter GROUP BY time(1m) fill(previous)) where $timeFilter fill(previous)\n",
+          "query": "select non_negative_derivative(\"max\",1s) from (SELECT max(\"sum\") as \"max\"  from (SELECT sum(\"counter\") as \"sum\" FROM \"af_node_red_counter_metric_sinusrequests\" WHERE (\"flowId\" = 'tester' ) AND $timeFilter GROUP BY time($__interval) fill(previous)) WHERE $timeFilter GROUP BY time(1m) fill(previous)) where $timeFilter fill(previous)\n",
           "rawQuery": true,
           "refId": "A",
           "resultFormat": "time_series",
@@ -540,7 +452,7 @@
           "tags": []
         },
         {
-          "alias": "Sinus RES",
+          "alias": "Sinus Result received",
           "groupBy": [
             {
               "params": [
@@ -557,7 +469,7 @@
           ],
           "orderByTime": "ASC",
           "policy": "default",
-          "query": "select non_negative_derivative(\"max\",1s) from (SELECT max(\"sum\") as \"max\"  from (SELECT sum(\"counter\") as \"sum\" FROM \"af_node_red_counter_metric_sinusresults\" WHERE (\"flowId\" = 'senssim' ) AND $timeFilter GROUP BY time($__interval) fill(previous)) WHERE $timeFilter GROUP BY time(1m) fill(previous)) where $timeFilter fill(previous)",
+          "query": "select non_negative_derivative(\"max\",1s) from (SELECT max(\"sum\") as \"max\"  from (SELECT sum(\"counter\") as \"sum\" FROM \"af_node_red_counter_metric_sinusresults\" WHERE (\"flowId\" = 'tester' ) AND $timeFilter GROUP BY time($__interval) fill(previous)) WHERE $timeFilter GROUP BY time(1m) fill(previous)) where $timeFilter fill(previous)",
           "rawQuery": true,
           "refId": "B",
           "resultFormat": "time_series",
@@ -578,7 +490,7 @@
           "tags": []
         },
         {
-          "alias": "Sinus CALC",
+          "alias": "Sinus Calculated",
           "groupBy": [
             {
               "params": [
@@ -620,7 +532,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Counter sensimu",
+      "title": "Flows counters",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -656,6 +568,169 @@
         "align": false,
         "alignLevel": null
       }
+    },
+    {
+      "content": "\n# Counters\n\nThis metrics provide the current values of the diffrent counters defined in the flows.\n\n\n\n",
+      "gridPos": {
+        "h": 8,
+        "w": 4,
+        "x": 0,
+        "y": 24
+      },
+      "id": 16,
+      "links": [],
+      "mode": "markdown",
+      "options": {},
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Lives Counters",
+      "type": "text"
+    },
+    {
+      "cacheTimeout": null,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 4,
+        "y": 24
+      },
+      "id": 14,
+      "links": [],
+      "options": {
+        "fieldOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "defaults": {
+            "decimals": -5,
+            "max": 100,
+            "min": 0
+          },
+          "mappings": [],
+          "override": {},
+          "thresholds": [
+            {
+              "color": "green",
+              "index": 0,
+              "value": null
+            },
+            {
+              "color": "red",
+              "index": 1,
+              "value": 80
+            }
+          ],
+          "values": false
+        },
+        "orientation": "auto",
+        "showThresholdLabels": true,
+        "showThresholdMarkers": false
+      },
+      "pluginVersion": "6.2.5",
+      "targets": [
+        {
+          "alias": "Sinus Requests",
+          "groupBy": [],
+          "measurement": "af_node_red_counter_metric_sinusrequests",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT sum(\"counter\") FROM \"af_node_red_counter_metric_sinusrequests\" WHERE $timeFilter GROUP BY time($__interval) fill(null)\n",
+          "rawQuery": false,
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "counter"
+                ],
+                "type": "field"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Sinus Results",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "af_node_red_counter_metric_sinusresults",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "query": "SELECT sum(\"counter\") FROM \"af_node_red_counter_metric_sinusresults\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+          "rawQuery": true,
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "counter"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "sum"
+              }
+            ]
+          ],
+          "tags": []
+        },
+        {
+          "alias": "Sinus Computed",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "af_node_red_counter_metric_sinuscomputed",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "C",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "counter"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "sum"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Lives counters",
+      "type": "gauge"
     }
   ],
   "refresh": "5s",
@@ -666,7 +741,7 @@
     "list": []
   },
   "time": {
-    "from": "now-1h",
+    "from": "now-30m",
     "to": "now"
   },
   "timepicker": {
@@ -697,5 +772,5 @@
   "timezone": "",
   "title": "sinus",
   "uid": "lgk0oX2Zk",
-  "version": 4
+  "version": 1
 }
