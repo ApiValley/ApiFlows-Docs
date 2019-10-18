@@ -1,15 +1,15 @@
 [
     {
-        "id": "dc5ac755.2471",
+        "id": "565a9bae.1467cc",
         "type": "tab",
         "label": "Http Simu Step1",
         "disabled": false,
         "info": ""
     },
     {
-        "id": "9ff10798.cac848",
+        "id": "f9f74ea4.eb92f",
         "type": "inject",
-        "z": "dc5ac755.2471",
+        "z": "565a9bae.1467cc",
         "name": "Start request",
         "topic": "",
         "payload": "",
@@ -22,66 +22,66 @@
         "y": 100,
         "wires": [
             [
-                "dabc3dc9.dbc64"
+                "a112f4df.2466a"
             ]
         ]
     },
     {
-        "id": "4237d569.b39904",
+        "id": "8b6b0fe2.458c8",
         "type": "http request",
-        "z": "dc5ac755.2471",
-        "name": "Send request to /sinus",
+        "z": "565a9bae.1467cc",
+        "name": "Send request to /echows",
         "method": "GET",
         "ret": "txt",
-        "paytoqs": false,
-        "url": "http://sinus.mvcbasu9.apivalley.org/sinus?angle={{{query}}}&format=json",
+        "paytoqs": true,
+        "url": "",
         "tls": "",
         "proxy": "",
         "authType": "",
-        "x": 520,
+        "x": 530,
         "y": 100,
         "wires": [
             [
-                "7174da23.40575c",
-                "77b007df.b7f618"
+                "1f14c353.fa1d25",
+                "cff0b3a9.0666c"
             ]
         ]
     },
     {
-        "id": "7174da23.40575c",
+        "id": "1f14c353.fa1d25",
         "type": "debug",
-        "z": "dc5ac755.2471",
-        "name": "Sinus",
+        "z": "565a9bae.1467cc",
+        "name": "echows response",
         "active": true,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
         "complete": "true",
         "targetType": "full",
-        "x": 710,
+        "x": 750,
         "y": 160,
         "wires": []
     },
     {
-        "id": "dabc3dc9.dbc64",
+        "id": "a112f4df.2466a",
         "type": "function",
-        "z": "dc5ac755.2471",
+        "z": "565a9bae.1467cc",
         "name": "Prepare query",
-        "func": "msg.query = 0;\nreturn msg;",
+        "func": "\nmsg.payload = {\n    'echo_message': \"hello world\",\n    'cpu_blocking_time': 10\n};\n \nmsg.headers = {'content-type':'application/x-www-form-urlencoded'};\nmsg.url = \"http://echows.o9eslaai.apivalley.org/echows\";\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "x": 300,
         "y": 100,
         "wires": [
             [
-                "4237d569.b39904"
+                "8b6b0fe2.458c8"
             ]
         ]
     },
     {
-        "id": "77b007df.b7f618",
+        "id": "cff0b3a9.0666c",
         "type": "function",
-        "z": "dc5ac755.2471",
+        "z": "565a9bae.1467cc",
         "name": "Validate response",
         "func": "msg.result = JSON.parse(msg.payload);\nreturn msg;",
         "outputs": 1,

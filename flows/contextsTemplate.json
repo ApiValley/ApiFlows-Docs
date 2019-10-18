@@ -1,4 +1,4 @@
 {
-    "data": {"prop1": "value1", "prop2": "value2", "mintemp": 10, "maxtemp": 23},
+    "data": {"echows_url": "http://echows.o9eslaai.apivalley.org/echows", "echo_message": "hello world", "cpu_blocking_time": 10},
     "state": "STARTED"
 }

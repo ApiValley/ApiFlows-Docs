@@ -88,8 +88,8 @@ Two parameters :
 ![ApiFlows metric node](../images/MetricNode.png)
 
 ```
-This node is used create and feed metrics. Metrics are collected, aggregated and made available in a grafana tenant at the following address : https://grafana.apivalley.org
-The node appears in palette in category ApiFlows  under the name ApiFlows wire-in.
+This node is used to create and feed metrics. Metrics are collected, aggregated and made available in a grafana tenant .
+The node appears in palette in category ApiFlows  under the name ApiFlows metric.
 ```
 
 Five parameters :
@@ -99,6 +99,19 @@ Five parameters :
 * **value** : Is not mandatory for counter ( Only value 1 is possible for counter and is set by default). Gauge accept negative values.
 * **buckets** : 
 * **percentiles** :
+
+## **ApiFlows cpu-loader node**
+
+![ApiFlows metric node](../images/CpuLoader.png)
+
+```
+This node is used to simulate CPU load. Its role it to block the CPU during a given amount of time in milliseconds, then send input message to the downstream node. 
+```
+One input : output may contain the filed **af_cpu_blocking_time**
+In that case, the value of this field in milliseconds is used as the blocking time duration
+If **af_cpu_blocking_time** is not present in input, **blocking time** parameter is used
+
+Example : if blocking time is 10 ms, each time a message is going through cpu-loader, 1% CPU is used
 
 
 

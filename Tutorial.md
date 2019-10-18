@@ -2,305 +2,593 @@
 
 [TOC](./README.md#table-of-content) 
 
-* [Objectives](#objectives)
-* [ApiFlows flows initialisation](#apiflows-flows-initialisation)
-* [Node-RED basic flow](#node-red-basic-flow)
-* [Node-RED basic functional tester](#node-red-basic-functional-tester)
-* [ApiFlows load tester](#apiflows-load-tester)
-* [ApiFlows load tester step1](#apiflows-load-tester-step1)
-* [ApiFlows load tester step2](#apiflows-load-tester-step2)
-* [ApiFlows load tester step3](#apiflows-load-tester-step3)
-* [Contexts injection](#contexts-injection)
-* [ApiFlows scalability](#apiflows-scalability)
-* [Monitoring](#monitoring)
-* [Inject contexts](#inject-contexts)
-* [Flows stop](#flows-stop)
+* [Introduction](#introduction)
+* [Prerequisites](#prerequisites)
+* [CLI authentication setup](#cli-authentication-setup)
+* [Deploy tester and echows flow in SDK mode](#deploy-tester-and-echows-flows-in-sdk-mode)
+* [Deploy tester and echows flows in MULTI mode to gain horizontal scalability](#deploy-tester-and-echows-flows-in-multi-mode-to-gain-horizontal-scalability)
 
 
-## Objectives
+___
 
-This trial aim to introduce step by step the different features provided by ApiFlows: a graphical interface to develop services based on Node-RED, horizontal scalability to adapt the service capacity to the demand using container orchestration, traffic distribution with load balancing and contexts shared over the parallel instances, and application monitoring thru Grafana dashboard.
 
-To illustrate all those aspects, we are going to develop a web service, as an ApiFlows flow, to compute the trigonometric sinus value of an angle provided as parameter in the http request. So, the service logique will be very simple: it receives a request, extract the angle from the parameters, compute the sinus, increment a counter to monitor the number of requests processed, and send back the result.
+## Introduction
 
-Then, we'll develop another ApiFlows flow to test the sinus service step by step, starting from a basic tester flow sending just a request to a full load testing managing a group of context, sending one different request per context and per second.
+This tutorial aims at introducing each feature provided by ApiFlows :
+* deploy Node-RED in the cloud . 
+* Use injection traffic to trigger more or less Node-RED workload
+* scale Node-RED horizontally to adapt hardware requirements to the workload, using container orchestration, traffic distribution with load balancing and contexts sharing over the parallel instances
+* Central monitoring of an elastic group of Node-RED instances thru a Grafana tenant dashboard.
 
+To illustrate all those aspects, we are going to use :
+* A first ApiFlows flow named echows, acting as a web service. The service logic is very simple: it receives a request containing two parameters:
+  * message_to_be_echoed
+  * cpu_blocking_time_duration
 
-## ApiFlows flows initialisation
+  The CPU is artificially blocked during cpu_blocking_time_duration by the way of the cpu-loader node, then message_to_be_echoed is sent back in the http response
 
-The first step is to create the two flows required for this tutorial to be able access the Node-RED instances for the sinus service and the tester. 
-First, initialize the communication with ApiFlows by running the command:
-```
-$ apiflows init
-```
-you'll be prompted for your email and password as you set when you created your account.
 
-Then, you can create the two flows by running:
-```
-$ apiflows flow create --flowId sinus
-$ apiflows flow create --flowId tester
-```
 
-Those two commands will instantiate two Node-RED that you'll be able to access using the links: 
-```
-http://sinus.youruserid.apivalley.org
-http://tester.youruserid.apivalley.org
-```
-where youruserid is the value of the field userId returned in the result of the command:
-```
-$ apiflows user list
-```
+* A second ApiFlows flow named tester, acting as a web client , to test echows web service. We will make it evolve from a basic functional tester sending just a request, to a complex one, able to load test the tester web service while managing contexts.
 
-In can take one minute for the instances to become up and running.
-At this point, we are ready to start developping flows. Let start with the sinus service flow.
+Let's us guide you ...
 
-## Node-RED basic flow
 
-Open a web browser with the link: http://sinus.youruserid.apivalley.org
 
-Node-RED already has many different connectors/nodes to implement multiple kind of flows. It can act as a web server to provide a web service. The sinus flow aim to compute the sinus of an angle provided in the http request's parameters. For this logic, a first node will receive the incoming http request at the entry point "/sinus", an other one will extract the parameter and compute the sinus, and a last node will send back the result. An additional node will be required to increment a metric's counter to monitor the number of requests processed.
 
-The resulting flow should be:
+___
 
-![Basic NodeRed flow](images/NodeRedBasicService.png)
+## Prerequisites
 
-The flow file in json format can be downloaded at: [NodeRedBasicService.json][flowBasicService]
 
-[flowBasicService]:https://github.com/ApiValley/ApiFlows-Docs/blob/master/flows/NodeRedBasicService.json "sinus service json file"
+* send an email to contact@apivalley.org 
+* receive back a procedure to create a user and schedule a tutorial event .
+* schedule a tutorial event
+* receive a tutorial event scheduling confirmation
+* install CLI
+  ```bash
+  $ mkdir TUTO; cd TUTO
+  $ git clone https://github.com/ApiValley/ApiFlows-CLI.git
+  $ chmod +x ApiFlows-CLI/linux/apiflows
+  $ export PATH=<PATH-TO-TUTO>/TUTO/ApiFlows-CLI/linux:$PATH
+  $ apiflows --help
+  Usage: apiflows [options] [command]
 
-Note: To import the flow in your Node-RED instance, follow the instructions [here][importNodeRED] 
-Note: Each time a flow is updated in the graphical interface, deploy MUST be done to push the flow to the Node-RED processing. The deploy button is in the upper right corner of the Node-RED page.
+  ApiFlows CLI
 
-[importNodeRED]: https://nodered.org/docs/user-guide/editor/workspace/import-export "Node-RED import/export"
+  Options:
+    -V, --version    output the version number
+    -h, --help       output usage information
 
-The sinus service can be reached using the NodeRed host name and the path /sinus:
-```
-"http://flowId.accountId.apivalley.org/sinus?q=32151.1"
-```
-where the flowId is the one you set when you created the flow, sinus in this case,
-and the accountId can be found using the command: 
-```
-$ apiflows user list.
-```
+  Commands:
+    init|i           get credentials from ApiFlows
+    user|u           create ,modify, or delete ApiFlows users
+    account|a        create ,modify, or delete ApiFlows accounts
+    subscription|su  create ,modify, or delete ApiFlows subscriptions
+    flow|fl          create ,modify, or delete ApiFlows flows
+    context|c        create ,modify, delete, start or stop  ApiFlows contexts
+    help [cmd]       display help for [cmd]
 
+  ``` 
+* Clone ApiFlows-Docs github repository containing tutorial materiel
 
-## Node-RED basic functional tester
+  ```bash
+  $ cd TUTO
+  $ git clone https://github.com/ApiValley/ApiFlows-Docs.git
+  ```
 
-Open a web browser with the link: http://tester.youruserid.apivalley.org
+* Wait for tutorial event starting time . ApiFlows team will have started ApiFlows service, so as you can run the tutorial, with or without assistance
 
-The same principle can used to validate the web service. A flow can be embedded in the same flow as a new tab or can be a flow on its own.
 
-![Basic NodeRed tester](images/NodeRedTesterFlow.png)
 
-The flow file in json format can be downloaded at: [NodeRedBasictester.json][flowBasicTester]
+___
 
-[flowBasicTester]: flows/NodeRedBasicTester.json "tester flow json file"
+## Setup
 
-Now, a request to the service can be generated by clicking on the Start Request inject node. Its capacity to generate traffic is very limited and not flexible. This is why we are introducing 
 
+### **step_0**: apiflows CLI initialization and grafana tenant Dashboard setup ( 2 minutes)
 
+* Action1
+  ```bash
+  $ cd TUTO/ApiFlows-Docs
+  $ apiflows init
+  apiflows init
+  ApiFlows login: regnauch@gmail.com
+  ApiFlows password: *********
 
-## ApiFlows load tester
+  retrieved access_token eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Ilg1ZVhrNHh5b2pORnVtMWtsMll0djhkbE5QNC1jNTdkTzZRR1RWQndhTmsifQ.eyJpc3MiOiJodHRwczovL2FwaWZsb3dzLmIyY2xvZ2luLmNvbS9jZWQ1Njc1ZC04YmNlLTQ5ODAtOTAyZS02YTU5OGM4YmFhYTMvdjIuMC8iLCJleHAiOjE1NzEzMDk2NTQsIm5iZiI6MTU3MTMwNjA1NCwiYXVkIjoiNWI0Yzg2YzgtNTJjOS00YmZkLWFhODktN2QyNzJkZDhmZTMxIiwiaWRwIjoiTG9jYWxBY2NvdW50Iiwib2lkIjoiNDVkYzkyYTYtNDNjZS00ZGFhLThkYzAtZGI3OGViMmVjMDIyIiwic3ViIjoiNDVkYzkyYTYtNDNjZS00ZGFhLThkYzAtZGI3OGViMmVjMDIyIiwiZ2l2ZW5fbmFtZSI6ImNoYXJsZXMiLCJmYW1pbHlfbmFtZSI6InJlZ25hdWx0IiwibmV3VXNlciI6ZmFsc2UsImVtYWlscyI6WyJyZWduYXVjaEBnbWFpbC5jb20iXSwidGZwIjoiQjJDXzFfUk9QQyIsImF6cCI6IjViNGM4NmM4LTUyYzktNGJmZC1hYTg5LTdkMjcyZGQ4ZmUzMSIsInZlciI6IjEuMCIsImlhdCI6MTU3MTMwNjA1NH0.g2oadHv5Yqy-FQfbBjI9R0e1YtsMHUPzwfoJpvemTzASRHXw1d_ChmJ81kXNu4tiirQVwMyg4Y1NZK8D9PWRwuWPs3l4q6JvJ6xn1Tv9iJcAUfSWke6UYhnjCzMquJ5g8Nm9_hEXtN6E2p2WgNxRk8EynLdhx7q_nje2dGDyzruaaQGUtWV1CyYddt8iW9aNutep0LCUG5_N7Tj6M5sh2GbIY3TIjFkXM5n2MQT-SxWpqyTaXVqUB8fXbFNDXXSFgm47GBwMtYP8KTss6_i7DohMlLZxLNCPEbHYx3FGdeRMF22AkoeprrHD8ep17FgWtycQG9dc4bS-ycgdbkV6JQ
+  User = { userId: 'o9eslaai', accountId: 'o9eslaai-a' }
+  ```
+* Result1
+  
+  One access token is generated by ApiFlows and saved in .apiflows.json file in your HOME directory.
+  The token is used by apiflows CLI to authentify itself against ApiFlows service.
 
-The basic functional tester can be enhanced to generate a traffic on demand, for numerous different contexts objects and to capture some metrics to monitor the test execution.
+  **Be carefull** : The token validity time is limited. You may have to launch **apiflows init** again if you start facing authentication error while using the CLI.
 
+      error { statusCode: 401, message: 'Unauthorized' }
+  
 
-## ApiFlows load tester step1
+* To be noticed1
 
-ApiFlows wire-in and wire-out nodes are introduce to offer the capacity to maintain a context state alive for a given context. The context can continue during the full test duration.
+  A json User object is returned by **apiflows init** :
 
-Introduce a wire-in node to start a request based on context injection:
+      User =  { userId: 'o9eslaai', accountId: 'o9eslaai-a' }
 
-![NodeRed load tester step 1](images/NodeRedTesterLoadStep1.png)
+  In the following tutorial steps, two parameters will be used:
+  * \<**userId**\> : takes the value of User.userId json property returned by apiflows init. 
+  * \<**accountId**\> : takes the value of User.accountId json property returned by apiflows init. 
 
-The flow file in json format can be downloaded at: [NodeRed load tester step 1.json][nrloadtest1]
+  Example : for charles.regnault@apivalley.org above
 
-[nrloadtest1]: flows/NodeRedTesterLoadStep1.json "tester flow json file with wire-in"
+    \<userId\>=o9eslaai
 
-This requires to send one Injector message for each request sent to the service. 
+    \<accountId\>=o9eslaai-a
 
-Lets send one Injector message. First, dowload the contexts data template : [contextsTemplate.json][contextstemplate]
 
-[contextstemplate]: flows/contextsTemplate.json "contexts data template file"
+* Action2 
 
-Then run the two following commands to create 1 context in one group, and inject it with the entry name INIT:
-```
-$ apiflows context create --flowId tester --nb 1 --groupId group1 --file flows/contextsTemplate.json
-$ apiflows context start --flowId tester --groupId group1 --wireIn INIT
-```
+  * Access your grafana tenant and open the tutorial dashboard ( 5 minutes )
 
-In the tester SDK Node-RED, the debug message should appear :
+    * With your browser Navigate to https://grafana.zmeter2.apivalley.org
+    * Because it's only for trial, the communication with ApiFlows grafana service is secured with a self-signed certificate. Your browser will warn you about a potential security issue. Depending on your web browser , you will have to accept this risk to continue.
+    * Wen prompted to log in, enter your userId as user and your accountId as password. You will be able to change your password immediately after your first connexion .
+    * Click on **tutorial** Dashboard to open it
+    
+* Result2
 
-![NodeRed load tester step 1: message in the debug tabulation](images/NodeRedTesterLoadStep1_debugmessage.png)
+  ![Basic NodeRed tester](images/GrafanaDashboard.png)
 
-and if you expand the result data object, you should see the result returned by the sinus service:
- 
-![message details in the debug tabulation](images/NodeRedTesterLoadStep1_debugmessagedetails.png)
+    tutorial Dashboard contains 4 panels :
 
-In the payload of the result, angle=0 is the angle, and sinus=0 is the resulting sinus value.
+    * **CPU consumption:**
 
-and finally, contexts can be removed from running loop with the command:
-```
-$ apiflows context delete --flowId tester --groupId group1 
-```
+      This panel provides the vCPU consumption for each running flow. It is the sum of vCPU consumption of all instances running the flow. Because it is a tutorial, each instance is limited to 500 milliCPUs max.
+      
+      From botom to top,
 
+      *  first red line represents 70% of 500 milliCPUs. If reached by a flow running 1 instance, apiflows scales it up to 2 instances.
+      
+      * second red line represents 70% of 2*500 milliCPUs. If reached by a flow running 2 instances, apiflows scales it up to 3 instances.
 
+    * **Number of Replicas**
 
-## ApiFlows load tester step2
+      This panel provides the number of instances for each running flow.
 
-Using an Injector message from a wire-out node to a wire-in node allows the traffic to continue/loop untill needed: 
+    * **Flow counters rate**
 
-![NodeRed load tester step 2](images/NodeRedTesterLoadStep2.png)
+      This panel provides the increase/decrease rate of the different counters defined in the flows by the way of ApiFlows metric node. Unit is 1/seconds
 
-The flow file in json format can be downloaded at: [NodeRed load tester step 2.json][nrloadtest2]
+    * **Flow counters**
 
-[nrloadtest2]: flows/NodeRedTesterLoadStep2.json "tester flow json file with wire-out, wire-in loop"
+      This panel provide the current values of the counters defined in the flows by the way of ApiFlows metric node
 
-We introduce a delay to avoid the flow to loop forever without any control. For each context injected, there will be one request per second in this example.
 
+___
+## Deploy tester and echows flows in SDK mode
+### **step_1**: create echows ApiFlows flow ( 5 minutes )
 
-## ApiFlows load tester step3
+* Action1
 
-For now, the request sent to the service is always the same. The context can be used to introduce some variations, store and update data related to a context for reuse in next context loop. For example, the current angle can be stored in the context to remember which sinus was already computed. It can be incremented during the next context loop.
-
-A metrics node is added to store a metric value in a time-series database for further analysis. For example, it can be a counter incremented for each sinus computed.
-
-Finally, the flow is:
-
-![NodeRed load tester step 3](images/NodeRedTesterLoadStep3.png)
-
-The flow file in json format can be downloaded at: [NodeRed load tester step 3.json][nrloadtest3]
-
-[nrloadtest3]: flows/NodeRedTesterLoadStep3.json "complete tester flow using contexts and metrics"
-
-A metric node can also be added to the service to count and validate that the number of requests sent on one side was well proccessed on the other. 
-
-
-## Contexts injection
-
-The ApiFlows interface allows you to create a group of context from the same data pattern with a unique command:
-```
-$ apiflows context create --flowId myflowid --nb contextsnumber --groupId mygroupid --file /var/contextsTemplate.json
-```
-with data pattern file containing a Json object like :
-```
-{
-    "data": {"prop1": "value1", "prop2": "value2", "mintemp": 10, "maxtemp": 23},
-    "state": "STARTED"
-}
-```
-
-and then inject them into a running flow with the command:
-```
-$ apiflows context start --flowId myflowid --groupId mygroupid --wireIn mywirepiname
-```
-
-and finally, contexts can be removed from running loop with the command:
-```
-$ apiflows context delete --flowId myflowid --groupId mygroupid
-```
-
-
-## ApiFlows scalability
-
-The two flows are running in SDK mode, the graphical interface is available, but they cannot scale. To know the status of the current running flows, run the command:
-```
-$ apiflows flow list
-```
-which should output:
-```
-response { statusCode: 200,
+  ```bash
+  $ apiflows flow create --flowId echows
+  response { statusCode: 200,
   type: 'application/json',
   body: 
-   [ { userId: 'myuserid',
-       accountId: 'myuserid-a',
-       subscriptionId: 'myuserid-s',
-       simulationId: 'sinus',
-       mode: 'sdk',
+   { userId: 'o9eslaai',
+     accountId: 'o9eslaai-a',
+     SDK_web_URL: 'http://echows.o9eslaai.apivalley.org' } }
+  ```
+* Result1
+ 
+  * CLI return a response with a json body object containing the following properties :
+
+    * \<userId\> : o9eslaai   ( same as returned by apiflows init command)
+    * \<accountId>: o9eslaai-a ( same as returned by apiflows init command )
+    * \<SDK_web_URL\>: http://echows.o9eslaai.apivalley.org ( address of echows flow web editor)
+
+  * A Node-RED instance is started in the cloud with a web editor reachable at the address : \<SDK_web_URL\>
+
+    In the example above, web editor address is http://echows.o9eslaai.apivalley.org  .
+  * A Node-RED storage dedicated to the flowId echows is created in the cloud, to store everything related to the Node-RED program:
+  
+    * Node-RED node modules installed from the palette
+    * Node-RED flow deployed in the Node-RED instance
+* Action2
+
+  
+  + Wait for 1 to 2 minutes for echows Node-RED instance to be deployed in the cloud then use your web browser to navigate to echows Node-RED web editor. To be aware when echows Node-RED editor is available, you have two possibilities :
+    * you can observe the **Nb Replicas** panel of grafana echows Dashboard. Nb Replicas for echows flow must change from 0 to 1.
+    * You can use the following command to observe **flowStatus** property 
+    ```
+      $ apiflows flow get --flowId echows
+      response { statusCode: 200,
+      type: 'application/json',
+      body: 
+      { userId: 'o9eslaai',
+        accountId: 'o9eslaai-a',
+        subscriptionId: 'o9eslaai-s',
+        simulationId: 'echows',
+        mode: 'sdk',
+        replicas: 1,
+        availableReplicas: 1,
+        flowStatus: 'ready',
+        service: 'on',
+        ingress: 'on',
+        autoscaler: 'off',
+        configmap: 'on' } }
+      ```
+* Action3
+
+  + Use echows Node-RED web editor to import and deploy the following json flow :  [flowBasicService](https://github.com/ApiValley/ApiFlows-Docs/blob/master/flows/NodeRedBasicService.json) 
+
+* result3
+
+  The following Node-RED flow is deployed 
+
+  ![Basic NodeRed flow](images/NodeRedBasicService.png)
+
+  It contains (from left to right)
+
+  * a Http input node which receives http request sent to http://echows.\<userId\>.apivalley.org/echows
+
+  * a function node to compute echows based on request parameter value
+
+  * a debug node to print echows value as soon as it is computed
+
+  * a APiFlows **metric** node, to create and feed a counter metric to count the number of computed echows
+
+  * a httpResponse node, to send back the result in a http response
+
+  
+
+
+### **step_2**: create tester ApiFlows flow ( 5 minutes )
+* Action1
+
+  ```bash
+  $ apiflows flow create --flowId tester
+  response { statusCode: 200,
+  type: 'application/json',
+  body: 
+   { userId: 'o9eslaai',
+     accountId: 'o9eslaai-a',
+     SDK_web_URL: 'http://tester.o9eslaai.apivalley.org' } }
+  ```
+* Result1
+ 
+  * CLI return a response with a json body object containing the following properties :
+
+    * \<userId\> : o9eslaai   ( same as returned by apiflows init command)
+    * \<accountId>: o9eslaai-a ( same as returned by apiflows init command )
+    * \<SDK_web_URL\>: http://tester.o9eslaai.apivalley.org ( address of tester flow web editor)
+
+  * A Node-RED instance is started in the cloud with a web editor reachable at the address : \<SDK_web_URL\>
+
+    In the example above, web editor address is http://tester.o9eslaai.apivalley.org  .
+  * A Node-RED storage dedicated to the flowId tester is created in the cloud, to store everything related to the Node-RED program:
+  
+    * Node-RED node modules installed from the palette
+    * Node-RED flow deployed in the Node-RED instance
+* Action2
+
+  
+  + Wait for 1 to 2 minutes for tester Node-RED instance to be deployed in the cloud then use your web browser to navigate to tester Node-RED web editor. To be aware when tester Node-RED editor is available, you have two possibilities :
+    * you can observe the **Nb Replicas** panel of grafana tutorial Dashboard. Nb Replicas for tester flow must change from 0 to 1.
+    * You can use the following command to observe **flowStatus** property 
+    ```
+      $ apiflows flow get --flowId tester
+      response { statusCode: 200,
+      type: 'application/json',
+      body: 
+      { userId: 'o9eslaai',
+        accountId: 'o9eslaai-a',
+        subscriptionId: 'o9eslaai-s',
+        simulationId: 'tester',
+        mode: 'sdk',
+        replicas: 1,
+        availableReplicas: 1,
+        flowStatus: 'ready',
+        service: 'on',
+        ingress: 'on',
+        autoscaler: 'off',
+        configmap: 'on' } }
+      ```
+* Action3
+  + Use tester Node-RED web editor to import and deploy the following json flow :  [flowBasicTester](http://github.com/ApiValley/ApiFlows-Docs/blob/master/flows/NodeRedBasicTester.json)
+  
+ 
+
+* result3
+
+  The following Node-RED flow is deployed 
+
+  ![Basic NodeRed tester](images/NodeRedTesterFlow.png)
+
+  It contains (from left to right)
+
+  * a Node-RED injector node. It can be used to trigger the flow, by just clicking 
+
+  * a function node to prepare http request content
+
+  * a Node-RED http request node, to send the request to echows web service
+  
+  * a function Node-RED node to check the content of http response
+
+* action4
+
+  * double click on http-request node-RED node to edit its properties
+  * modify URL : replace echows.mvcbasu9.apivalley.org by echows.\<userId\>.apivalley.org where \<userId\> is the value you noticed in step0
+  * save change by clicking on **Done**
+  * Deploy your change by clicking on **Deploy**
+
+  
+### **step_3**: send one request from tester to echows ( 5 minutes )
+* Action
+
+  * Navigate to tester web editor
+  * click two times on injector node button
+* Result
+
+  * Two requests were sent to echows web service
+  * It can be checked by navigating to echows web editor and look at logs produced by the debug node. Two echows were computed
+
+
+### **step_4**: Modify tester flow to use traffic injection capability (2  minutes ) 
+* Action1
+
+  + Use tester Node-RED web editor to import and deploy the following json flow :  [flowLoadTester](https://github.com/ApiValley/ApiFlows-Docs/blob/master/flows/NodeRedTesterLoadStep2.json)
+
+* Result1
+
+  The following Node-RED flow is deployed 
+
+  ![Basic NodeRed tester](images/NodeRedTesterLoadStep2.png)
+
+  What are the changes between flowBasicTester and flowLoadTester
+
+  * one ApiFlows wire-in node with pin_name=INIT was added to inject **injector messages** from outside by the way of apiflows CLI
+
+  * one ApiFlows wire-in node with pin_name=CONTINUE and one ApiFlows wire-out node with target_pin_name=CONTINUE was added to make injector messages loop through Node-RED instances running tester flow.
+
+  * One delay Node-RED node set to 1s , to define the number of loop per second of each injected message.
+  
+  With such a program, we can expect sending one http request per second per external injected message.
+
+* Action2
+
+  * double click on http-request node-RED node to edit its properties
+  * modify URL : replace echows.mvcbasu9.apivalley.org by echows.\<userId\>.apivalley.org where \<userId\> is the value you noticed in step0
+  * save change by clicking on **Done**
+  * Deploy your change by clicking on **Deploy**
+
+
+
+### **step_5**: Use injection traffic to controll http traffic rate ( 2 minutes )
+* Action1
+  ```
+  $ apiflows context create --flowId tester --nb 5 --groupId group1   --file flows/contextsTemplate.json
+
+  $ apiflows context create --flowId tester --nb 5 --groupId group2  --file flows/contextsTemplate.json
+
+  ```
+* Result1
+
+  * two groups of shared contexts were created in ApiFlows shared context service
+  * We are ready to inject **injector message** associated with these contexts, from the CLI to tester flow
+* Action2
+  ```bash
+  $ apiflows context start --flowId tester --groupId group1 --wireIn INIT
+  ```
+
+* Result2
+
+  * 5 injector messages belonging to group1 ,were sent to wire-in INIT node of tester flow,from the CLI.
+  * Grafana dashboard observations:
+
+    * In **Flows counter** panel, we can see that near 5 echows request per second are computed. It means that injection traffic on tester side, triggers http traffic on echows side.
+
+
+* Action3
+  ```bash
+  $ apiflows context start --flowId tester --groupId group2 --wireIn INIT
+  ```
+
+
+* Result3
+
+
+  * 5 new injector messages belonging to group2  were sent to wire-in INIT node from the CLI.
+  * Grafana dashboard observations:
+
+    * In **Flows counter** panel, we can see that near 10 echows requests per second are computed. 
+
+### **step_6**:  Use shared context to make http request content vary (5  minutes ) 
+* Action
+* Result
+* To be noticed
+
+
+
+___
+
+## Deploy tester and echows flows in MULTI mode to gain horizontal scalability
+
+### **step_7**: switch tester ApiFlows flow in multi mode 
+* Action1
+  
+  * create json file flows/testerMulti.json with the following content
+
+  ```json
+  {
+   "mode": "multi",
+   "autoscale": true,
+   "minReplicas": 1,
+   "maxReplicas": 3
+  }
+  ```
+
+* Action2
+
+  ```bash
+  $ apiflows flow modify --flowId tester --file flows/testerMulti.json
+  ```
+
+* Result2
+
+  * tester Node-RED web editor is disconnected, because SDK Node-RED instance is stopped
+  * One new Node-RED instance is started , without editor
+  * autoscale is on. ApiFlows is capable to scale the flow horizontally if needed ( up or down )
+  * Look at Nb Replicas Panel in tutorial grafana Dashboard. Nb replicas of tester flow is first going from 1 to 0, when SDK is stopped, then goes from 0 to 1, when first instance of multi tester flow is available. Please wait for first multi instance to be available before going to step 9. 
+
+
+
+### **step_8**: switch echows ApiFlows flow in multi mode
+* Action1
+  
+  * create json file flows/echowsMulti.json with the following content
+
+  ```json
+  {
+   "mode": "multi",
+   "autoscale": true,
+   "minReplicas": 1,
+   "maxReplicas": 3
+  }
+  ```
+
+* Action2
+
+  ```bash
+  $ apiflows flow modify --flowId echows --file flows/echowsMulti.json
+  ```
+
+* Result2
+
+* echows Node-RED veb weditor is disconnected, because SDK Node-RED instance is stopped
+  * One new Node-RED instance is started , without editor
+  * autoscale is on. ApiFlows is capable to scale the flow horizontally if needed ( up or down )
+  * Look at Nb Replicas Panel in tutorial grafana Dashboard. Nb replicas of echows flow is first going from 1 to 0, when SDK is stopped, then goes from 0 to 1, when first instance of multi echows flow is available. Please wait for first multi instance to be available before going to step 9. 
+
+
+{ statusCode: 200,
+  type: 'application/json',
+  body: 
+   [ { userId: 'o9eslaai',
+       accountId: 'o9eslaai-a',
+       subscriptionId: 'o9eslaai-s',
+       simulationId: 'echows',
+       mode: 'multi',
        replicas: 1,
+       availableReplicas: 1,
+       flowStatus: 'ready',
        service: 'on',
        ingress: 'on',
-       autoscaler: 'off',
+       autoscaler: 'on',
+       minReplicas: 1,
+       maxReplicas: 3,
+       targetCPUUtilizationPercentage: 70,
        configmap: 'on' },
-     { userId: 'myuserid',
-       accountId: 'myuserid-a',
-       subscriptionId: 'myuserid-s',
+     { userId: 'o9eslaai',
+       accountId: 'o9eslaai-a',
+       subscriptionId: 'o9eslaai-s',
        simulationId: 'tester',
-       mode: 'sdk',
+       mode: 'multi',
        replicas: 1,
+       availableReplicas: 1,
+       flowStatus: 'ready',
        service: 'on',
        ingress: 'on',
-       autoscaler: 'off',
+       autoscaler: 'on',
+       minReplicas: 1,
+       maxReplicas: 3,
+       targetCPUUtilizationPercentage: 70,
        configmap: 'on' } ] }
-```
-Each flow is in SDK mode, with only one instance running and no autoscaler enabled:        
-```
-       mode: 'sdk',
-       replicas: 1,
-       autoscaler: 'off',
-```
-
-Scaling requires to update the ApiFlows flow in multi mode. 
-
-The first step is to define what scalability is expected. It is defined in a json file with a content similar to:
-```
-{
-    "userId": "myuserid",
-    "accountId": "myuserid-a",
-    "subscriptionId": "myuserid-s",
-    "simulationId": "myflowid",
-    "mode": "multi",
-    "replicas": 1,
-    "minReplicas": 1,
-    "maxReplicas": 3,
-    "autoscale": true
-}
-```
-in which myuserid is replaced with your own user id, and mysimulation is replaced with the name of the flow (sinus and tester in this tutorial).
-
-To switch both tester and sinus SDK into Multi scalable instances, run the commands:
-```
-$ apiflows flow modify --flowId tester --file flows/testerMulti.json
-$ apiflows flow modify --flowId sinus --file flows/sinusMulti.json
-```
-the SDK instance will stop and a new scalable instance should start. The flow is now ready to scale from 1 to 3 instances.
 
 
 
-## Inject contexts
 
-Now, we want to start some context to observe the behavior of the service when under traffic. So, first, create some groups of contexts:
-```
-$ apiflows context create --flowId tester --nb 100 --groupId group1 --file flows/contextsTemplate.json
-$ apiflows context create --flowId tester --nb 100 --groupId group2 --file flows/contextsTemplate.json
-$ apiflows context create --flowId tester --nb 100 --groupId group3 --file flows/contextsTemplate.json
-```
-It creates 3 groups named group1 group2 and group3 with 100 contexts each.
+### **step_9**: Increase injection traffic by steps, and observe how tester and echows flows are scaling up
+* Action1
+  ```
+  $ apiflows context create --flowId tester --nb 100 --groupId groupA --file flows/contextsTemplate.json
+  $ apiflows context create --flowId tester --nb 100 --groupId groupB --file flows/contextsTemplate.json
+  $ apiflows context create --flowId tester --nb 100 --groupId groupC --file flows/contextsTemplate.json
+  ```
 
-and inject the first one:
-```
-$ apiflows context start --flowId tester --groupId group1 --wireIn INIT
-```
 
-You should observe the number of contexts in activity and the CPU laod increase in the Grafana dashboard. 
+* Action2
+  ```
+  $ apiflows context start --flowId tester --groupId groupA --wireIn INIT
+  ```
 
-After few minutes, inject an other group:
-```
-$ apiflows context start --flowId tester --groupId group2 --wireIn INIT
-```
-You should observe the number of contexts and CPU load continue to increase. If the CPU load exceeds 70%, the tester and the sinus flows should scale up after few minutes.
+* Result2
 
-Repeat this with group3, and observe again a CPU increase and service scale up.
+  Let's wait for 5 minutes and observe grafana tutorial Dasboard :
+  ![Basic NodeRed tester](images/Grafana50FirstContexts.png)
 
-## Monitoring
 
-The Grafana dashboard is accessible at the address
-```
-https://grafana.zmeter2.apivalley.org
-```
-You can create your own dashboard, or import the one associated with the tutorial: [myGrafanaDashboard.json][dashboardjson]
 
-[dashboardjson]: flows/LoadStepGrafana.json "json dashboard description to be imported in Grafana"
+* Action3
+  ```
+  $ apiflows context start --flowId tester --groupId groupB --wireIn INIT
+  ```
+
+  * Result3
+
+  Let's wait for 5 minutes and observe grafana tutorial Dasboard :
+  ![Basic NodeRed tester](images/Grafana200FirstContexts.png)
+
+  * Action4
+  ```
+  $ apiflows context start --flowId tester --groupId groupC --wireIn INIT
+  ```
+
+  * Result4
+  Let's wait for 5 minutes and observe grafana tutorial Dasboard :
+  ![Basic NodeRed tester](images/Grafana300FirstContexts.png)
+
+* To be noticed
+
+### **step_10**: Decrease injection traffic by steps, and observe how tester and echows flow are scaling down
+* Action1
+  ```
+  $ apiflows context stop --flowId tester --groupId groupA
+  ```
+
+* Result1
+
+* Action2
+  ```
+  $ apiflows context stop --flowId tester --groupId groupB
+  ```
+
+* Result2
+
+* Action3
+  ```
+  $ apiflows context stop --flowId tester --groupId groupC
+  ```
+
+* Result3
+
+* To be noticed
+
+ 
+___
+
+
+
+
+ 
+
+
+
+
+
+
+
+
 
 
 ## Delete the contexts
@@ -321,7 +609,7 @@ So, Wait more than 5 minutes between the different context deletion to observe t
 To stop the flows, just delete the ApiFlows flow object. Run the commands:
 ```
 $ apiflows flow delete --flowId tester
-$ apiflows flow delete --flowId sinus
+$ apiflows flow delete --flowId echows
 ```
 
 

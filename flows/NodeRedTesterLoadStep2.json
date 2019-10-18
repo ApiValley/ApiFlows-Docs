@@ -1,89 +1,52 @@
 [
     {
-        "id": "39624e92.373a62",
+        "id": "6fddbfcb.20424",
         "type": "tab",
         "label": "Http Simu load tester step 2",
         "disabled": false,
         "info": ""
     },
     {
-        "id": "c6403312.3b3a08",
-        "type": "inject",
-        "z": "39624e92.373a62",
-        "name": "",
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "x": 120,
-        "y": 100,
-        "wires": [
-            [
-                "b412d8f2.d9da2"
-            ]
-        ]
-    },
-    {
-        "id": "c6f50fb8.952558",
+        "id": "e08e90bb.b07bc8",
         "type": "http request",
-        "z": "39624e92.373a62",
-        "name": "Send request to /sinus",
+        "z": "6fddbfcb.20424",
+        "name": "Send request to /echows",
         "method": "GET",
         "ret": "txt",
-        "paytoqs": false,
-        "url": "http://sinus.mvcbasu9.apivalley.org/sinus?angle={{{query}}}&format=json",
+        "paytoqs": true,
+        "url": "",
         "tls": "",
         "proxy": "",
         "authType": "",
-        "x": 600,
+        "x": 610,
         "y": 340,
         "wires": [
             [
-                "573be577.4e8824",
-                "19b3063a.705d7a"
+                "f163fe79.33d51",
+                "12efe883.292dc7"
             ]
         ]
     },
     {
-        "id": "8dff1bbd.49eb08",
+        "id": "2f59d854.0af6e",
         "type": "function",
-        "z": "39624e92.373a62",
+        "z": "6fddbfcb.20424",
         "name": "Prepare query",
-        "func": "msg.query = msg.af_context.temp;\nmsg.af_context.temp = msg.af_context.temp + 1;\nreturn msg;",
+        "func": "\nmsg.payload = {\n    'echo_message': msg.af_context.echo_message,\n    'cpu_blocking_time': msg.af_context.cpu_blocking_time,\n};\n \nmsg.headers = {'content-type':'application/x-www-form-urlencoded'};\nmsg.url = msg.af_context.echows_url ;\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "x": 380,
         "y": 340,
         "wires": [
             [
-                "c6f50fb8.952558"
+                "e08e90bb.b07bc8"
             ]
         ]
     },
     {
-        "id": "e4b527fd.9464a",
-        "type": "apiflows wire-in",
-        "z": "39624e92.373a62",
-        "name": "wire-in INIT",
-        "pin_name": "INIT",
-        "simulation_id": "",
-        "x": 110,
-        "y": 180,
-        "wires": [
-            [
-                "65c981a6.02f068"
-            ],
-            [],
-            []
-        ]
-    },
-    {
-        "id": "b57e72a2.3f67a8",
+        "id": "74f22737.6eef4",
         "type": "apiflows wire-out",
-        "z": "39624e92.373a62",
+        "z": "6fddbfcb.20424",
         "name": "wire-out CONTINUE",
         "target_flow_name": "",
         "target_pin_name": "CONTINUE",
@@ -93,42 +56,26 @@
         "wires": []
     },
     {
-        "id": "d04f79b9.957bb",
+        "id": "57fdb08a.50e748",
         "type": "apiflows wire-in",
-        "z": "39624e92.373a62",
-        "name": "wire-in CONTINUE",
+        "z": "6fddbfcb.20424",
+        "name": "wire-in  CONTINUE",
         "pin_name": "CONTINUE",
         "simulation_id": "",
         "x": 130,
         "y": 340,
         "wires": [
             [
-                "8dff1bbd.49eb08"
+                "2f59d854.0af6e"
             ],
             [],
             []
         ]
     },
     {
-        "id": "65c981a6.02f068",
-        "type": "function",
-        "z": "39624e92.373a62",
-        "name": "Initial event",
-        "func": "msg.af_context.temp = 0;\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 470,
-        "y": 180,
-        "wires": [
-            [
-                "7a404f7a.97ba08"
-            ]
-        ]
-    },
-    {
-        "id": "abe64618.727a38",
+        "id": "bc7f252b.3a4f",
         "type": "delay",
-        "z": "39624e92.373a62",
+        "z": "6fddbfcb.20424",
         "name": "",
         "pauseType": "delay",
         "timeout": "1",
@@ -144,113 +91,67 @@
         "y": 480,
         "wires": [
             [
-                "b57e72a2.3f67a8"
+                "74f22737.6eef4"
             ]
         ]
     },
     {
-        "id": "573be577.4e8824",
+        "id": "f163fe79.33d51",
         "type": "function",
-        "z": "39624e92.373a62",
+        "z": "6fddbfcb.20424",
         "name": "Validate response",
         "func": "msg.result = JSON.parse(msg.payload);\nmsg.af_contextid\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
-        "x": 830,
+        "x": 850,
         "y": 340,
         "wires": [
             [
-                "f03a6eb1.c1f2d"
+                "9b4c8bb4.a701b8"
             ]
         ]
     },
     {
-        "id": "b412d8f2.d9da2",
-        "type": "function",
-        "z": "39624e92.373a62",
-        "name": "",
-        "func": "msg.af_context = {};\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 270,
-        "y": 100,
-        "wires": [
-            [
-                "65c981a6.02f068"
-            ]
-        ]
-    },
-    {
-        "id": "19b3063a.705d7a",
+        "id": "12efe883.292dc7",
         "type": "debug",
-        "z": "39624e92.373a62",
-        "name": "Sinus",
+        "z": "6fddbfcb.20424",
+        "name": "echows",
         "active": true,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
         "complete": "true",
         "targetType": "full",
-        "x": 790,
-        "y": 400,
+        "x": 800,
+        "y": 380,
         "wires": []
     },
     {
-        "id": "f03a6eb1.c1f2d",
+        "id": "9b4c8bb4.a701b8",
         "type": "link out",
-        "z": "39624e92.373a62",
+        "z": "6fddbfcb.20424",
         "name": "Post execution",
         "links": [
-            "ae0a4817.1c09b8"
+            "fd48e525.6ec158"
         ],
-        "x": 1040,
+        "x": 1080,
         "y": 340,
         "wires": [],
         "l": true
     },
     {
-        "id": "7a404f7a.97ba08",
-        "type": "link out",
-        "z": "39624e92.373a62",
-        "name": "Start query",
-        "links": [
-            "e3855e0f.6f957"
-        ],
-        "x": 650,
-        "y": 180,
-        "wires": [],
-        "l": true
-    },
-    {
-        "id": "e3855e0f.6f957",
+        "id": "fd48e525.6ec158",
         "type": "link in",
-        "z": "39624e92.373a62",
-        "name": "Start query",
-        "links": [
-            "7a404f7a.97ba08"
-        ],
-        "x": 245,
-        "y": 280,
-        "wires": [
-            [
-                "8dff1bbd.49eb08"
-            ]
-        ],
-        "l": true
-    },
-    {
-        "id": "ae0a4817.1c09b8",
-        "type": "link in",
-        "z": "39624e92.373a62",
+        "z": "6fddbfcb.20424",
         "name": "Post execution",
         "links": [
-            "f03a6eb1.c1f2d"
+            "9b4c8bb4.a701b8"
         ],
         "x": 140,
         "y": 480,
         "wires": [
             [
-                "abe64618.727a38"
+                "bc7f252b.3a4f"
             ]
         ],
         "l": true

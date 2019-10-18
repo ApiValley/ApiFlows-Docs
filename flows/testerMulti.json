@@ -1,11 +1,6 @@
 {
-    "userId": "mvcbasu9",
-    "accountId": "mvcbasu9-a",
-    "subscriptionId": "mvcbasu9-s",
-    "simulationId": "tester",
-    "mode": "multi",
-    "replicas": 1,
-    "minReplicas": 1,
-    "maxReplicas": 3,
-    "autoscale": true
+  "mode": "multi",
+  "autoscale": true,
+  "minReplicas": 1,
+  "maxReplicas": 3
 }

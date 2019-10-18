@@ -1,85 +1,99 @@
 [
     {
-        "id": "ec3d1ca9.0ece6",
+        "id": "f403c088.72fff8",
         "type": "tab",
         "label": "Flow 1",
         "disabled": false,
         "info": ""
     },
     {
-        "id": "38d17773.62fea",
+        "id": "e74a60ae.324418",
         "type": "http response",
-        "z": "ec3d1ca9.0ece6",
+        "z": "f403c088.72fff8",
         "name": "",
         "statusCode": "200",
         "headers": {},
-        "x": 860,
+        "x": 1060,
         "y": 140,
         "wires": []
     },
     {
-        "id": "7f65d889.73332",
+        "id": "454d731b.71fdf4",
         "type": "function",
-        "z": "ec3d1ca9.0ece6",
-        "name": "Compute function",
-        "func": "msg.payload.sinus = Math.sin(msg.payload.angle);\nreturn msg;",
+        "z": "f403c088.72fff8",
+        "name": "extract function",
+        "func": "msg.af_cpu_blocking_time = msg.payload.cpu_blocking_time ;\nmsg.payload.cpu_blocking_time = undefined ;\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
-        "x": 430,
+        "x": 400,
         "y": 140,
         "wires": [
             [
-                "48f94f0f.3d15b8",
-                "2be4ced6.b7daa2"
+                "983e3d65.e5742"
             ]
         ]
     },
     {
-        "id": "8e42e640.cfe888",
+        "id": "929797da.8a1928",
         "type": "http in",
-        "z": "ec3d1ca9.0ece6",
+        "z": "f403c088.72fff8",
         "name": "",
-        "url": "/sinus",
+        "url": "/echows",
         "method": "get",
         "upload": false,
         "swaggerDoc": "",
-        "x": 200,
+        "x": 210,
         "y": 140,
         "wires": [
             [
-                "7f65d889.73332"
+                "454d731b.71fdf4",
+                "dfb3bee3.58cdd8"
             ]
         ]
     },
     {
-        "id": "48f94f0f.3d15b8",
+        "id": "dfb3bee3.58cdd8",
         "type": "debug",
-        "z": "ec3d1ca9.0ece6",
-        "name": "Sinus value",
+        "z": "f403c088.72fff8",
+        "name": "echows value",
         "active": true,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
         "complete": "true",
         "targetType": "full",
-        "x": 670,
+        "x": 400,
         "y": 200,
         "wires": []
     },
     {
-        "id": "2be4ced6.b7daa2",
+        "id": "1ded99be.6ab406",
         "type": "apiflows metric",
-        "z": "ec3d1ca9.0ece6",
-        "name": "sinuscomputed",
+        "z": "f403c088.72fff8",
+        "name": "echowscomputed",
         "metric_type": "COUNTER",
         "value": "1",
         "buckets": "true",
         "percentiles": "true",
-        "x": 680,
+        "x": 830,
         "y": 140,
         "wires": [
             [
-                "38d17773.62fea"
+                "e74a60ae.324418"
+            ]
+        ]
+    },
+    {
+        "id": "983e3d65.e5742",
+        "type": "apiflows cpu loader",
+        "z": "f403c088.72fff8",
+        "name": "cpu loader",
+        "blocking_time": "10",
+        "x": 590,
+        "y": 140,
+        "wires": [
+            [
+                "1ded99be.6ab406"
             ]
         ]
     }

@@ -1,0 +1,6 @@
+{
+    "mode": "multi",
+    "minReplicas": 1,
+    "maxReplicas": 3,
+    "autoscale": true
+}
