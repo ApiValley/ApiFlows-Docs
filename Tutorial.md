@@ -22,10 +22,10 @@ This tutorial aims at introducing each feature provided by ApiFlows :
 
 To illustrate all those aspects, we are going to use :
 * A first ApiFlows flow named echows, acting as a web service. The service logic is very simple: it receives a request containing two parameters:
-  * message_to_be_echoed
-  * cpu_blocking_time_duration
+  * echo_message
+  * cpu_blocking_time
 
-  The CPU is artificially blocked during cpu_blocking_time_duration by the way of the cpu-loader node, then message_to_be_echoed is sent back in the http response
+  The CPU is artificially blocked during cpu_blocking_time (ms) by the way of the cpu-loader node, then echo_message is sent back in the http response
 
 
 

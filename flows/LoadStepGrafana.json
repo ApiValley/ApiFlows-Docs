@@ -110,7 +110,7 @@
           "tags": []
         },
         {
-          "alias": "Sinus CPU",
+          "alias": "Echows CPU",
           "groupBy": [
             {
               "params": [
@@ -298,7 +298,7 @@
           "tags": []
         },
         {
-          "alias": "Sinus replicas",
+          "alias": "Echows replicas",
           "groupBy": [
             {
               "params": [
@@ -665,7 +665,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "alias": "Sinus Results",
+          "alias": "Echows Results",
           "groupBy": [
             {
               "params": [
@@ -705,7 +705,7 @@
           "tags": []
         },
         {
-          "alias": "Sinus Computed",
+          "alias": "Echows Computed",
           "groupBy": [
             {
               "params": [
@@ -747,7 +747,7 @@
       "thresholds": "",
       "timeFrom": null,
       "timeShift": null,
-      "title": "Sinus computed",
+      "title": "Echows computed",
       "type": "singlestat",
       "valueFontSize": "80%",
       "valueMaps": [
@@ -865,7 +865,7 @@
       "thresholds": "",
       "timeFrom": null,
       "timeShift": null,
-      "title": "Sinus results",
+      "title": "Echows results",
       "type": "singlestat",
       "valueFontSize": "80%",
       "valueMaps": [
