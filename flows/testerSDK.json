@@ -1,0 +1,11 @@
+{
+    "userId": "mvcbasu9",
+    "accountId": "mvcbasu9-a",
+    "subscriptionId": "mvcbasu9-s",
+    "simulationId": "tester",
+    "mode": "SDK",
+    "replicas": 1,
+    "minReplicas": 1,
+    "maxReplicas": 1,
+    "autoscale": false
+}

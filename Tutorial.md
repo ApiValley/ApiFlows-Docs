@@ -604,6 +604,17 @@ Scale down may take 5 minutes to happened. It waits for this duration to confirm
 So, Wait more than 5 minutes between the different context deletion to observe the impact in terms of CPU, and scale down.
 
 
+## Switch back flows in SDK mode
+
+During multi instances mode, the graphical is not accessible to update the flow. If needed, after deleting the contexts, you can switch back to the SDK mode by running the flollowing commands:
+
+```
+$ apiflows flow modify --flowId tester --file flows/testerSDK.json
+$ apiflows flow modify --flowId sinus --file flows/sinusSDK.json
+```
+the Multi instances will stop and a new SDK instance should start. You can access again the graphical interface and edit your flow.
+
+
 ## Flows stop
 
 To stop the flows, just delete the ApiFlows flow object. Run the commands:
